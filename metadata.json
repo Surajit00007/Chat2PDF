@@ -1,0 +1,6 @@
+{
+  "name": "Chat Document Converter",
+  "description": "Convert ChatGPT, Claude, and Gemini chat share links or transcriptions into polished PDF and Word documents.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
