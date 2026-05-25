@@ -1,4 +1,4 @@
-import { parseChatRequest } from "../../server";
+import { parseChatRequest } from "../../src/parser";
 
 export const handler = async (event: { httpMethod?: string; body?: string | null }) => {
   if (event.httpMethod !== "POST") {
