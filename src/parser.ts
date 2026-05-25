@@ -443,11 +443,11 @@ export function getAiClient(): GoogleGenAI | null {
 }
 
 export async function parseChatRequest(
-  body: { url?: string; rawText?: string } = {},
+  body: { url?: string; rawText?: string; useAiCleanup?: boolean } = {},
   aiOverride?: GoogleGenAI | null
 ): Promise<{ statusCode: number; body: Record<string, any> }> {
-  const { url, rawText } = body;
-  const ai = aiOverride ?? getAiClient();
+  const { url, rawText, useAiCleanup = true } = body;
+  const ai = useAiCleanup ? (aiOverride ?? getAiClient()) : null;
 
   let contentToParse = "";
   let isFetched = false;
@@ -537,10 +537,12 @@ export async function parseChatRequest(
 
   if (!ai) {
     return {
-      statusCode: 500,
+      statusCode: 200,
       body: {
         success: false,
-        error: "Could not extract full chat messages from this input, and Gemini API Key is missing for AI cleanup. Paste the visible chat transcript or configure an API key.",
+        error: useAiCleanup
+          ? "Could not extract full chat messages from this input, and Gemini API Key is missing for AI cleanup. Paste the visible chat transcript or configure an API key."
+          : "Could not automatically detect chat structure in this input. AI Cleanup is turned off — try switching it on, or paste the visible conversation text manually using the Paste Transcript tab.",
       },
     };
   }

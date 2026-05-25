@@ -73,6 +73,9 @@ export default function App() {
   // Theme States
   const [themeMode, setThemeMode] = useState<"light" | "dark">("light");
 
+  // AI Cleanup Toggle
+  const [useAiCleanup, setUseAiCleanup] = useState(true);
+
   // --- PARSE TRIGGERS ---
   const handleParse = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -91,9 +94,9 @@ export default function App() {
 
       setLoadingStep("Sending payload to Gemini parser...");
       
-      const payload = activeTab === "link" 
-        ? { url: shareLink } 
-        : { rawText: copiedText };
+      const payload = activeTab === "link"
+        ? { url: shareLink, useAiCleanup }
+        : { rawText: copiedText, useAiCleanup };
 
       const res = await fetch("/api/parse-chat", {
         method: "POST",
@@ -1044,6 +1047,41 @@ export default function App() {
                       <option value="Gemini">Gemini (Google)</option>
                       <option value="DeepSeek">DeepSeek</option>
                     </select>
+                  </div>
+
+                  {/* AI Cleanup Toggle */}
+                  <div className={`flex items-center justify-between px-4 py-3 rounded-2xl transition-all ${isDark ? 'glass-inner-dark' : 'glass-inner'}`}>
+                    <div className="flex flex-col">
+                      <span className={`text-xs font-bold ${isDark ? 'text-zinc-200' : 'text-gray-700'}`}>
+                        AI Cleanup
+                      </span>
+                      <span className={`text-[10px] font-medium mt-0.5 ${isDark ? 'text-zinc-500' : 'text-gray-400'}`}>
+                        {useAiCleanup ? 'Uses Gemini to parse complex transcripts' : 'Deterministic parser only — no API key needed'}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      id="ai-cleanup-toggle"
+                      role="switch"
+                      aria-checked={useAiCleanup}
+                      onClick={() => setUseAiCleanup(v => !v)}
+                      className={`relative inline-flex h-7 w-12 flex-shrink-0 cursor-pointer rounded-full border-2 transition-all duration-300 focus:outline-none ${
+                        useAiCleanup
+                          ? isDark
+                            ? 'bg-indigo-500 border-indigo-400/50 shadow-lg shadow-indigo-500/30'
+                            : 'bg-indigo-500 border-indigo-400/50 shadow-lg shadow-indigo-300/50'
+                          : isDark
+                            ? 'bg-white/10 border-white/15'
+                            : 'bg-gray-200/80 border-gray-300/50'
+                      }`}
+                    >
+                      <span
+                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition-all duration-300 ${
+                          useAiCleanup ? 'translate-x-5' : 'translate-x-0.5'
+                        }`}
+                        style={{marginTop: '1px'}}
+                      />
+                    </button>
                   </div>
 
                   {/* Warning Messages */}
