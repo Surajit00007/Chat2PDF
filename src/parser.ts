@@ -487,7 +487,7 @@ export async function parseChatRequest(
           "Cache-Control": "no-cache",
           Pragma: "no-cache",
         },
-        signal: AbortSignal.timeout(10000),
+        signal: AbortSignal.timeout(4000),
       });
 
       const status = fetchRes.status;
