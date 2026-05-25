@@ -867,10 +867,15 @@ export default function App() {
   const isDark = themeMode === "dark";
 
   return (
-    <div className={`min-h-screen font-sans antialiased flex flex-col selection:bg-zinc-200 selection:text-black ${isDark ? "bg-gradient-to-br from-[#090d16] via-[#0f1728] to-[#0f2a23] text-zinc-100" : "bg-gradient-to-br from-[#f8fbfa] via-white to-[#e3f6ee] text-[#1A1A1A]"}`}>
+    <div className={`min-h-screen font-sans antialiased flex flex-col selection:bg-purple-200/60 selection:text-purple-900 ${isDark ? "glass-bg-dark text-zinc-100" : "glass-bg-light text-[#1A1A1A]"}`}>
       
+      {/* Ambient decorative orbs */}
+      <div className="glass-orb w-[520px] h-[520px] top-[-140px] left-[-120px] opacity-50" style={{background: isDark ? 'rgba(70,165,137,0.18)' : 'rgba(139,197,253,0.40)'}} />
+      <div className="glass-orb w-[400px] h-[400px] top-[30%] right-[-100px] opacity-40" style={{animationDelay:'4s', background: isDark ? 'rgba(99,102,241,0.14)' : 'rgba(196,181,253,0.38)'}} />
+      <div className="glass-orb w-[350px] h-[350px] bottom-[5%] left-[15%] opacity-35" style={{animationDelay:'8s', background: isDark ? 'rgba(16,185,129,0.12)' : 'rgba(167,243,208,0.45)'}} />
+
       {/* --- APP HEADER --- */}
-      <header className={`sticky top-0 z-50 px-6 py-5 border-b backdrop-blur ${isDark ? "border-white/10 bg-[#0f1728]/80" : "border-gray-100 bg-white/90"}`}>
+      <header className={`sticky top-0 z-50 px-6 py-4 ${isDark ? 'glass-dark' : 'glass'} border-b ${isDark ? 'border-white/10' : 'border-white/60'}`}>
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-3" id="app-logo-block">
             <img
@@ -891,7 +896,7 @@ export default function App() {
               type="button"
               onClick={() => setThemeMode((current) => (current === "light" ? "dark" : "light"))}
               aria-label={`Switch to ${themeMode === "light" ? "dark" : "light"} mode`}
-              className={`inline-flex items-center justify-center rounded-full border p-2 transition-all ${isDark ? "border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10" : "border-zinc-200 bg-zinc-50 text-zinc-700 hover:border-zinc-300 hover:bg-zinc-100"}`}
+              className={`inline-flex items-center justify-center rounded-full p-2.5 transition-all duration-300 ${isDark ? 'glass-inner-dark text-zinc-100 hover:bg-white/10' : 'glass-inner text-zinc-700 hover:bg-white/70'}`}
             >
               {themeMode === "light" ? (
                 <Sun className="w-4 h-4" />
@@ -921,8 +926,8 @@ export default function App() {
             >
               
               {/* Visual App Promo Header */}
-              <div className="text-center space-y-3 py-4">
-                <span className={`text-[11px] font-bold uppercase tracking-widest px-3.5 py-1.5 rounded-full inline-block ${isDark ? "text-white bg-white/10" : "text-[#111111] bg-black/5"}`}>
+              <div className="text-center space-y-4 py-4">
+                <span className={`text-[11px] font-bold uppercase tracking-widest px-3.5 py-1.5 rounded-full inline-block glass-shimmer ${isDark ? 'glass-inner-dark text-white/90' : 'glass text-indigo-700'}`}>
                   Chat2PDF
                 </span>
                 <h2 className={`text-4xl sm:text-5xl font-extrabold tracking-tighter leading-none mb-1 ${isDark ? "text-white" : "text-[#111111]"}`}>
@@ -934,21 +939,21 @@ export default function App() {
               </div>
 
               {/* Central Box Layout */}
-              <div className={`rounded-3xl overflow-hidden p-2 sm:p-4 shadow-sm ${isDark ? "bg-gradient-to-br from-[#0f1728] via-[#111b2a] to-[#10281e] border border-white/10 shadow-black/30" : "bg-gradient-to-br from-[#ffffff] via-[#f8fffc] to-[#eaf8f1] border border-gray-200 shadow-gray-200/50"}`}>
+              <div className={`rounded-3xl overflow-hidden p-2 sm:p-4 glass-shimmer transition-glass ${isDark ? 'glass-dark shadow-2xl shadow-black/40' : 'glass-strong shadow-2xl shadow-indigo-100/60'}`}>
                 
                 {/* Method Toggles */}
-                <div className={`flex rounded-2xl p-1 mx-4 mt-4 ${isDark ? "bg-white/5 border border-white/10" : "bg-gray-50 border border-gray-200/40"}`}>
+                <div className={`flex rounded-2xl p-1 mx-4 mt-4 ${isDark ? 'glass-inner-dark' : 'glass-inner'}`}>
                   <button
                     type="button"
                     onClick={() => { setActiveTab("link"); setErrorStatus(null); }}
                     className={`flex-1 flex items-center justify-center space-x-2 py-3 text-[13px] font-bold rounded-xl transition-all duration-200 ${
                       activeTab === "link"
                         ? isDark
-                          ? "bg-gradient-to-r from-[#46A589]/30 to-[#0F1325]/40 text-white shadow-sm border border-[#46A589]/30"
-                          : "bg-white text-black shadow-sm border border-gray-100"
+                          ? 'bg-white/10 text-white shadow-md border border-white/20 backdrop-blur-sm'
+                          : 'glass-strong text-indigo-700 shadow-md border border-white/80'
                         : isDark
-                          ? "text-zinc-300 hover:text-white hover:bg-white/5"
-                          : "text-gray-500 hover:text-black hover:bg-gray-50/50"
+                          ? 'text-zinc-300 hover:text-white hover:bg-white/5'
+                          : 'text-gray-500 hover:text-indigo-600 hover:bg-white/40'
                     }`}
                   >
                     <Link className="w-3.5 h-3.5" />
@@ -961,11 +966,11 @@ export default function App() {
                     className={`flex-1 flex items-center justify-center space-x-2 py-3 text-[13px] font-bold rounded-xl transition-all duration-200 ${
                       activeTab === "paste"
                         ? isDark
-                          ? "bg-gradient-to-r from-[#46A589]/30 to-[#0F1325]/40 text-white shadow-sm border border-[#46A589]/30"
-                          : "bg-white text-black shadow-sm border border-gray-100"
+                          ? 'bg-white/10 text-white shadow-md border border-white/20 backdrop-blur-sm'
+                          : 'glass-strong text-indigo-700 shadow-md border border-white/80'
                         : isDark
-                          ? "text-zinc-300 hover:text-white hover:bg-white/5"
-                          : "text-gray-500 hover:text-black hover:bg-gray-50/50"
+                          ? 'text-zinc-300 hover:text-white hover:bg-white/5'
+                          : 'text-gray-500 hover:text-indigo-600 hover:bg-white/40'
                     }`}
                   >
                     <Clipboard className="w-3.5 h-3.5" />
@@ -993,7 +998,7 @@ export default function App() {
                           value={shareLink}
                           onChange={(e) => setShareLink(e.target.value)}
                           placeholder="https://chatgpt.com/share/unique-link-id"
-                          className="w-full pl-12 pr-4 py-4.5 bg-gray-50 border border-gray-200 rounded-xl text-[14px] text-zinc-800 placeholder-gray-400 outline-none focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition-all"
+                          className={`w-full pl-12 pr-4 py-4.5 rounded-xl text-[14px] placeholder-gray-400/70 outline-none focus:ring-2 transition-all ${isDark ? 'bg-white/5 border border-white/10 text-zinc-100 focus:ring-white/10 focus:border-white/25 focus:bg-white/8' : 'bg-white/50 border border-white/70 text-zinc-800 focus:ring-indigo-200/60 focus:border-white/90 focus:bg-white/75 backdrop-blur-sm'}`}
                         />
                       </div>
                       <span className="text-[11px] text-gray-400 font-medium block">
@@ -1013,14 +1018,8 @@ export default function App() {
                         id="pasted"
                         value={copiedText}
                         onChange={(e) => setCopiedText(e.target.value)}
-                        placeholder={`Paste any text transcript here directly. E.g.:
-
-User: Hello! Please write a python quicksort.
-AI: Sure! Here is the code...
-\`\`\`python
-def quicksort(arr): ...
-\`\`\``}
-                        className="w-full min-h-[160px] p-4 text-[13px] bg-gray-50 border border-gray-200 rounded-xl text-zinc-800 placeholder-gray-400 font-mono overflow-y-auto leading-relaxed focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black outline-none transition-all"
+                        placeholder={`Paste any text transcript here directly. E.g.:\n\nUser: Hello! Please write a python quicksort.\nAI: Sure! Here is the code...\n\`\`\`python\ndef quicksort(arr): ...\n\`\`\``}
+                        className={`w-full min-h-[160px] p-4 text-[13px] rounded-xl font-mono overflow-y-auto leading-relaxed focus:outline-none focus:ring-2 outline-none transition-all ${isDark ? 'bg-white/5 border border-white/10 text-zinc-100 placeholder-zinc-500 focus:ring-white/10 focus:border-white/25' : 'bg-white/50 border border-white/70 text-zinc-800 placeholder-gray-400/70 focus:ring-indigo-200/60 focus:border-white/90 backdrop-blur-sm'}`}
                       />
                       <span className="text-[11px] text-gray-400 font-medium block">
                         Tip: Open your shared chat link, press <strong className="text-gray-600">Ctrl+A</strong> to select all, copy it (<strong className="text-gray-600">Ctrl+C</strong>), and paste it directly!
@@ -1037,7 +1036,7 @@ def quicksort(arr): ...
                       id="platform-select"
                       value={platformOverride}
                       onChange={(e) => setPlatformOverride(e.target.value)}
-                      className="w-full bg-gray-50 border border-gray-200 py-3.5 px-4 rounded-xl text-xs font-semibold text-zinc-700 outline-none focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition-all appearance-none cursor-pointer"
+                      className={`w-full py-3.5 px-4 rounded-xl text-xs font-semibold outline-none focus:outline-none focus:ring-2 transition-all appearance-none cursor-pointer ${isDark ? 'bg-white/5 border border-white/10 text-zinc-200 focus:ring-white/10' : 'bg-white/50 border border-white/70 text-zinc-700 focus:ring-indigo-200/60 backdrop-blur-sm'}`}
                     >
                       <option value="">Auto-Detect Platform</option>
                       <option value="ChatGPT">ChatGPT</option>
@@ -1049,7 +1048,7 @@ def quicksort(arr): ...
 
                   {/* Warning Messages */}
                   {errorStatus && (
-                    <div className="p-4 bg-rose-50 border border-rose-100 rounded-xl flex items-start space-x-2.5">
+                    <div className="p-4 rounded-xl flex items-start space-x-2.5 border border-rose-200/60 bg-rose-50/70 backdrop-blur-sm">
                       <AlertCircle className="w-4 h-4 text-rose-600 mt-0.5 flex-shrink-0" />
                       <div className="text-xs text-rose-800 font-medium whitespace-pre-wrap leading-relaxed">
                         {errorStatus}
@@ -1061,7 +1060,7 @@ def quicksort(arr): ...
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full bg-black text-white py-5 rounded-2xl text-[15px] font-bold select-none cursor-pointer hover:opacity-90 active:scale-[0.99] disabled:opacity-50 disabled:pointer-events-none transition-all flex items-center justify-center space-x-2.5 shadow-sm shadow-black/10"
+                    className={`w-full py-5 rounded-2xl text-[15px] font-bold select-none cursor-pointer active:scale-[0.99] disabled:opacity-50 disabled:pointer-events-none transition-all flex items-center justify-center space-x-2.5 glass-shimmer ${isDark ? 'bg-gradient-to-r from-indigo-600/80 to-emerald-600/70 text-white border border-white/20 shadow-lg shadow-indigo-900/30 hover:from-indigo-500/90 hover:to-emerald-500/80' : 'bg-gradient-to-r from-indigo-500 to-violet-500 text-white border border-indigo-400/30 shadow-lg shadow-indigo-300/50 hover:from-indigo-400 hover:to-violet-400'}`}
                   >
                     {loading ? (
                       <>
@@ -1081,20 +1080,20 @@ def quicksort(arr): ...
               </div>
 
               {/* Brand Minimalist Statistics Row */}
-              <div className="flex items-center gap-6 sm:gap-12 justify-center py-6">
-                <div className="text-center">
-                  <div className="text-xl sm:text-2xl font-bold">15k+</div>
-                  <div className="text-[11px] font-bold uppercase text-gray-400 tracking-wider">Files Exported</div>
+              <div className={`flex items-center gap-6 sm:gap-12 justify-center py-5 rounded-2xl mx-2 ${isDark ? 'glass-inner-dark' : 'glass-inner'}`}>
+                <div className="text-center px-4">
+                  <div className={`text-xl sm:text-2xl font-bold ${isDark ? 'text-white' : 'text-indigo-700'}`}>15k+</div>
+                  <div className={`text-[11px] font-bold uppercase tracking-wider ${isDark ? 'text-zinc-400' : 'text-indigo-400'}`}>Files Exported</div>
                 </div>
-                <div className="h-8 w-px bg-gray-200"></div>
-                <div className="text-center">
-                  <div className="text-xl sm:text-2xl font-bold">0%</div>
-                  <div className="text-[11px] font-bold uppercase text-gray-400 tracking-wider">Data Stored</div>
+                <div className={`h-8 w-px ${isDark ? 'bg-white/10' : 'bg-indigo-200/50'}`}></div>
+                <div className="text-center px-4">
+                  <div className={`text-xl sm:text-2xl font-bold ${isDark ? 'text-white' : 'text-indigo-700'}`}>0%</div>
+                  <div className={`text-[11px] font-bold uppercase tracking-wider ${isDark ? 'text-zinc-400' : 'text-indigo-400'}`}>Data Stored</div>
                 </div>
-                <div className="h-8 w-px bg-gray-200"></div>
-                <div className="text-center">
-                  <div className="text-xl sm:text-2xl font-bold">Instant</div>
-                  <div className="text-[11px] font-bold uppercase text-gray-400 tracking-wider">Processing</div>
+                <div className={`h-8 w-px ${isDark ? 'bg-white/10' : 'bg-indigo-200/50'}`}></div>
+                <div className="text-center px-4">
+                  <div className={`text-xl sm:text-2xl font-bold ${isDark ? 'text-white' : 'text-indigo-700'}`}>Instant</div>
+                  <div className={`text-[11px] font-bold uppercase tracking-wider ${isDark ? 'text-zinc-400' : 'text-indigo-400'}`}>Processing</div>
                 </div>
               </div>
               
@@ -1119,14 +1118,14 @@ def quicksort(arr): ...
                 <button
                   type="button"
                   onClick={resetHandler}
-                  className="inline-flex items-center space-x-2 text-[11px] font-bold text-gray-400 hover:text-black transition-colors uppercase tracking-widest select-none cursor-pointer"
+                  className={`inline-flex items-center space-x-2 text-[11px] font-bold uppercase tracking-widest select-none cursor-pointer transition-colors ${isDark ? 'text-zinc-400 hover:text-white' : 'text-gray-400 hover:text-indigo-600'}`}
                 >
                   <X className="w-4 h-4" />
                   <span>Convert New Document</span>
                 </button>
 
                 {/* Dashboard Meta Settings Wrapper */}
-                <div className="bg-white border border-gray-200 rounded-3xl shadow-sm shadow-gray-200/50 p-6 space-y-6">
+                <div className={`rounded-3xl p-6 space-y-6 glass-shimmer transition-glass ${isDark ? 'glass-dark shadow-xl shadow-black/30' : 'glass-strong shadow-xl shadow-indigo-100/50'}`}>
                   
                   <div>
                     <h3 className="text-base font-bold text-black tracking-tight">Document Settings</h3>
@@ -1144,7 +1143,7 @@ def quicksort(arr): ...
                       value={editTitle}
                       onChange={(e) => setEditTitle(e.target.value)}
                       placeholder="Title on document page"
-                      className="w-full bg-gray-50 border border-gray-200 px-4 py-3 rounded-xl text-xs font-semibold text-zinc-800 outline-none focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition-all"
+                      className={`w-full px-4 py-3 rounded-xl text-xs font-semibold outline-none focus:outline-none focus:ring-2 transition-all ${isDark ? 'bg-white/5 border border-white/10 text-zinc-100 focus:ring-white/10' : 'bg-white/50 border border-white/70 text-zinc-800 focus:ring-indigo-200/50 backdrop-blur-sm'}`}
                     />
                   </div>
 
@@ -1159,12 +1158,12 @@ def quicksort(arr): ...
                       value={editPlatform}
                       onChange={(e) => setEditPlatform(e.target.value)}
                       placeholder="e.g. ChatGPT, Claude..."
-                      className="w-full bg-gray-50 border border-gray-200 px-4 py-3 rounded-xl text-xs font-semibold text-zinc-800 outline-none focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition-all"
+                      className={`w-full px-4 py-3 rounded-xl text-xs font-semibold outline-none focus:outline-none focus:ring-2 transition-all ${isDark ? 'bg-white/5 border border-white/10 text-zinc-100 focus:ring-white/10' : 'bg-white/50 border border-white/70 text-zinc-800 focus:ring-indigo-200/50 backdrop-blur-sm'}`}
                     />
                   </div>
 
                   {/* Statistical Badges list */}
-                  <div className="bg-gray-50 border border-gray-200/50 rounded-2xl p-4.5 space-y-2.5">
+                  <div className={`rounded-2xl p-4 space-y-2.5 ${isDark ? 'glass-inner-dark' : 'glass-inner'}`}>
                     <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block pb-1 border-b border-gray-200/50">Conversion Details</span>
                     <div className="flex justify-between items-center text-xs">
                       <span className="text-gray-500 font-semibold">Included Messages:</span>
@@ -1181,7 +1180,7 @@ def quicksort(arr): ...
                     <button
                       type="button"
                       onClick={downloadPDF}
-                      className="w-full bg-black text-white hover:opacity-90 rounded-2xl py-4 px-4 text-xs font-bold cursor-pointer transition-all flex items-center justify-center space-x-2 shadow-sm shadow-black/10 animate-fade-in"
+                      className={`w-full rounded-2xl py-4 px-4 text-xs font-bold cursor-pointer transition-all flex items-center justify-center space-x-2 glass-shimmer ${isDark ? 'bg-gradient-to-r from-indigo-600/80 to-violet-600/70 text-white border border-white/15 shadow-lg shadow-indigo-900/30 hover:from-indigo-500/90 hover:to-violet-500/80' : 'bg-gradient-to-r from-indigo-500 to-violet-500 text-white border border-indigo-400/30 shadow-lg shadow-indigo-200/60 hover:from-indigo-400 hover:to-violet-400'}`}
                     >
                       <Download className="w-3.5 h-3.5" />
                       <span>Download PDF Document</span>
@@ -1190,9 +1189,9 @@ def quicksort(arr): ...
                     <button
                       type="button"
                       onClick={downloadDOCX}
-                      className="w-full bg-white border border-gray-200 text-gray-800 hover:bg-gray-50 rounded-2xl py-4 px-4 text-xs font-bold cursor-pointer transition-all flex items-center justify-center space-x-2"
+                      className={`w-full rounded-2xl py-4 px-4 text-xs font-bold cursor-pointer transition-all flex items-center justify-center space-x-2 ${isDark ? 'glass-inner-dark text-zinc-200 hover:bg-white/10' : 'glass text-indigo-700 hover:bg-white/80'}`}
                     >
-                      <FileCheck2 className="w-3.5 h-3.5 text-gray-400" />
+                      <FileCheck2 className={`w-3.5 h-3.5 ${isDark ? 'text-zinc-400' : 'text-indigo-400'}`} />
                       <span>Export to Word (.docx)</span>
                     </button>
 
@@ -1204,9 +1203,9 @@ def quicksort(arr): ...
                         setNativeShareError("");
                         setCopiedShareDetails(false);
                       }}
-                      className="w-full bg-zinc-50 border border-zinc-200/80 text-zinc-800 hover:bg-zinc-100 rounded-2xl py-4 px-4 text-xs font-bold cursor-pointer transition-all flex items-center justify-center space-x-2 shadow-sm hover:shadow-inner"
+                      className={`w-full rounded-2xl py-4 px-4 text-xs font-bold cursor-pointer transition-all flex items-center justify-center space-x-2 ${isDark ? 'glass-inner-dark text-zinc-200 hover:bg-white/10' : 'glass text-gray-700 hover:bg-white/80'}`}
                     >
-                      <Share2 className="w-3.5 h-3.5 text-zinc-500" />
+                      <Share2 className={`w-3.5 h-3.5 ${isDark ? 'text-zinc-400' : 'text-gray-400'}`} />
                       <span>Share Document</span>
                     </button>
                   </div>
@@ -1220,21 +1219,21 @@ def quicksort(arr): ...
                 
                 {/* Visual Draft Header Info */}
                 <div className="flex justify-between items-center px-2">
-                  <div className="flex items-center space-x-2 text-[10px] font-bold text-black bg-black/5 py-1.5 px-3.5 rounded-full uppercase tracking-widest select-none">
-                    <Eye className="w-3.5 h-3.5 text-black" />
+                  <div className={`flex items-center space-x-2 text-[10px] font-bold py-1.5 px-3.5 rounded-full uppercase tracking-widest select-none glass-shimmer ${isDark ? 'glass-inner-dark text-zinc-200' : 'glass text-indigo-700'}`}>
+                    <Eye className={`w-3.5 h-3.5 ${isDark ? 'text-zinc-300' : 'text-indigo-600'}`} />
                     <span>Live Document Draft</span>
                   </div>
-                  <span className="text-xs text-gray-400 font-medium">Click checkboxes to toggle transcript blocks</span>
+                  <span className={`text-xs font-medium ${isDark ? 'text-zinc-400' : 'text-gray-400'}`}>Click checkboxes to toggle transcript blocks</span>
                 </div>
 
                 {/* Draft Simulated Paper Space */}
-                <div className="bg-white border border-gray-200 rounded-3xl shadow-sm shadow-gray-250/30 overflow-hidden">
+                <div className={`rounded-3xl overflow-hidden glass-shimmer transition-glass ${isDark ? 'glass-dark shadow-2xl shadow-black/40' : 'glass-strong shadow-2xl shadow-indigo-100/50'}`}>
                   
                   {/* Paper Header banner layout */}
-                  <div className="p-8 sm:p-10 bg-gray-50/50 border-b border-gray-100">
+                  <div className={`p-8 sm:p-10 border-b ${isDark ? 'bg-white/3 border-white/10' : 'bg-white/30 border-white/50'}`}>
                     <div className="max-w-xl mx-auto space-y-3">
                       <div className="flex items-center space-x-2">
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest bg-gray-200/40 px-3 py-1 rounded-full">
+                        <span className={`text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full glass-inner ${isDark ? 'text-zinc-400' : 'text-indigo-500'}`}>
                           {editPlatform || "AI"} Transcript
                         </span>
                       </div>
@@ -1245,7 +1244,7 @@ def quicksort(arr): ...
                   </div>
 
                   {/* Message stack mapping */}
-                  <div className="p-6 sm:p-10 space-y-6 bg-white max-w-xl mx-auto">
+                  <div className={`p-6 sm:p-10 space-y-6 max-w-xl mx-auto ${isDark ? 'bg-transparent' : 'bg-transparent'}`}>
                     
                     {parsedData.messages.map((msg) => {
                       const isUser = msg.role === "user";
@@ -1304,12 +1303,18 @@ def quicksort(arr): ...
                               )}
                             </div>
 
-                            <div className={`rounded-[24px] border px-4 py-4 sm:px-5 sm:py-5 transition-all ${
+                            <div className={`rounded-[24px] px-4 py-4 sm:px-5 sm:py-5 transition-all glass-shimmer ${
                               isEnabled
                                 ? isUser
-                                  ? "bg-gradient-to-br from-[#46A589]/15 to-[#0F1325]/10 border-[#46A589]/20"
-                                  : "bg-white border-gray-200"
-                                : "opacity-30 border-gray-200 bg-white"
+                                  ? isDark
+                                    ? 'bg-indigo-500/10 border border-indigo-400/20 backdrop-blur-md'
+                                    : 'bg-indigo-50/60 border border-indigo-200/50 backdrop-blur-md'
+                                  : isDark
+                                    ? 'glass-dark'
+                                    : 'glass'
+                                : isDark
+                                  ? 'opacity-25 glass-inner-dark'
+                                  : 'opacity-25 glass-inner'
                             }`}>
                               {isCurrentlyEditing ? (
                                 <div className="space-y-3">
@@ -1359,7 +1364,7 @@ def quicksort(arr): ...
       </main>
 
       {/* --- FOOTER REGION --- */}
-      <footer className="border-t border-gray-100 bg-white py-8 mt-16 px-6">
+      <footer className={`border-t py-8 mt-16 px-6 ${isDark ? 'glass-dark border-white/10' : 'glass border-white/60'}`}>
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between text-[12px] text-gray-400 font-medium space-y-3 sm:space-y-0">
           <div className="flex items-center gap-6">
             <span>© 2026 Chat2PDF</span>
@@ -1395,12 +1400,12 @@ def quicksort(arr): ...
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
               transition={{ type: "spring", duration: 0.4 }}
-              className="relative bg-white w-full max-w-lg rounded-3xl p-6 sm:p-8 shadow-xl border border-gray-150 z-10 flex flex-col hover:border-gray-250 transition-colors"
+              className={`relative w-full max-w-lg rounded-3xl p-6 sm:p-8 z-10 flex flex-col glass-shimmer transition-glass ${isDark ? 'glass-dark shadow-2xl shadow-black/50' : 'glass-strong shadow-2xl shadow-indigo-100/60'}`}
             >
               {/* Header */}
-              <div className="flex items-center justify-between pb-4 border-b border-gray-100 animate-fade-in">
+              <div className={`flex items-center justify-between pb-4 border-b ${isDark ? 'border-white/10' : 'border-white/50'}`}>
                 <div className="flex items-center space-x-2.5">
-                  <div className="p-2 bg-black/5 rounded-xl text-black">
+                  <div className={`p-2 rounded-xl ${isDark ? 'glass-inner-dark text-zinc-200' : 'glass-inner text-indigo-600'}`}>
                     <Share2 className="w-4 h-4" />
                   </div>
                   <div>
@@ -1410,7 +1415,7 @@ def quicksort(arr): ...
                 </div>
                 <button
                   onClick={() => setShareModalOpen(false)}
-                  className="rounded-lg p-1.5 hover:bg-gray-100 text-gray-400 hover:text-black transition-colors"
+                  className={`rounded-lg p-1.5 transition-colors ${isDark ? 'text-zinc-400 hover:text-white hover:bg-white/10' : 'text-gray-400 hover:text-indigo-700 hover:bg-white/70'}`}
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -1421,7 +1426,7 @@ def quicksort(arr): ...
                 <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">
                   Select Format to Share
                 </label>
-                <div className="grid grid-cols-2 gap-2 bg-gray-50 p-1 rounded-xl border border-gray-200/50">
+                <div className={`grid grid-cols-2 gap-2 p-1 rounded-xl ${isDark ? 'glass-inner-dark' : 'glass-inner'}`}>
                   <button
                     type="button"
                     onClick={() => {
@@ -1429,9 +1434,13 @@ def quicksort(arr): ...
                       setNativeShareStatus("idle");
                     }}
                     className={`flex items-center justify-center space-x-1.5 py-2.5 text-xs font-bold rounded-lg transition-all ${
-                      shareFormat === "pdf"
-                        ? "bg-white text-black shadow-sm"
-                        : "text-gray-400 hover:text-black"
+                      shareFormat === 'pdf'
+                        ? isDark
+                          ? 'bg-white/15 text-white border border-white/20 shadow-sm'
+                          : 'glass-strong text-indigo-700 shadow-sm'
+                        : isDark
+                          ? 'text-zinc-400 hover:text-white'
+                          : 'text-gray-400 hover:text-indigo-600'
                     }`}
                   >
                     <FileText className="w-3.5 h-3.5" />
@@ -1445,9 +1454,13 @@ def quicksort(arr): ...
                       setNativeShareStatus("idle");
                     }}
                     className={`flex items-center justify-center space-x-1.5 py-2.5 text-xs font-bold rounded-lg transition-all ${
-                      shareFormat === "docx"
-                        ? "bg-white text-black shadow-sm"
-                        : "text-gray-400 hover:text-black"
+                      shareFormat === 'docx'
+                        ? isDark
+                          ? 'bg-white/15 text-white border border-white/20 shadow-sm'
+                          : 'glass-strong text-indigo-700 shadow-sm'
+                        : isDark
+                          ? 'text-zinc-400 hover:text-white'
+                          : 'text-gray-400 hover:text-indigo-600'
                     }`}
                   >
                     <FileCheck2 className="w-3.5 h-3.5" />
@@ -1460,7 +1473,7 @@ def quicksort(arr): ...
               <div className="space-y-4">
                 
                 {/* 1. System native sharing button */}
-                <div className="bg-gray-50 border border-gray-100 p-4 rounded-2xl flex flex-col space-y-3">
+                <div className={`p-4 rounded-2xl flex flex-col space-y-3 ${isDark ? 'glass-inner-dark' : 'glass-inner'}`}>
                   <div>
                     <h4 className="text-[12px] font-bold text-black uppercase tracking-wider">System or Device Share</h4>
                     <p className="text-[11px] text-gray-400 mt-0.5">Push directly to applications (Google Drive, Slack, Dropbox, Mail, WhatsApp or SMS)</p>
@@ -1468,7 +1481,7 @@ def quicksort(arr): ...
 
                   <button
                     onClick={handleNativeShare}
-                    className="w-full bg-black text-white hover:opacity-95 rounded-xl py-3 px-3 text-xs font-bold flex items-center justify-center space-x-2 transition-all cursor-pointer shadow-sm shadow-black/5"
+                    className={`w-full rounded-xl py-3 px-3 text-xs font-bold flex items-center justify-center space-x-2 transition-all cursor-pointer glass-shimmer ${isDark ? 'bg-gradient-to-r from-indigo-600/80 to-violet-600/70 text-white border border-white/15 shadow-md hover:opacity-90' : 'bg-gradient-to-r from-indigo-500 to-violet-500 text-white border border-indigo-400/30 shadow-md hover:opacity-90'}`}
                   >
                     <Share2 className="w-3.5 h-3.5 animate-pulse" />
                     <span>
@@ -1492,7 +1505,7 @@ def quicksort(arr): ...
                 </div>
 
                 {/* 2. Custom Quick Email Channel */}
-                <div className="bg-zinc-50/50 border border-zinc-150 p-4 rounded-2xl space-y-3.5">
+                <div className={`p-4 rounded-2xl space-y-3.5 ${isDark ? 'glass-inner-dark' : 'glass-inner'}`}>
                   <div className="flex justify-between items-start">
                     <div>
                       <h4 className="text-[12px] font-bold text-black uppercase tracking-wider">Share via Email Link</h4>
@@ -1501,20 +1514,20 @@ def quicksort(arr): ...
                     {/* Copy Template Button */}
                     <button
                       onClick={() => {
-                        const emailBody = `Hi there,\n\nI exported this AI conversation transcript of "${editTitle || "Shared Chat Transcript"}" from ${editPlatform || "AI Assistant"}.\n\nDocument Summary:\n- Total message blocks: ${getSelectedMessageCount()}\n- Total word count approx: ${getSelectedWordCount()} words\n\nYou can attach the downloaded PDF/Word file to this email.\n\nGenerated via Chat2PDF.`;
+                        const emailBody = `Hi there,\n\nI exported this AI conversation transcript of "${editTitle || 'Shared Chat Transcript'}" from ${editPlatform || 'AI Assistant'}.\n\nDocument Summary:\n- Total message blocks: ${getSelectedMessageCount()}\n- Total word count approx: ${getSelectedWordCount()} words\n\nYou can attach the downloaded PDF/Word file to this email.\n\nGenerated via Chat2PDF.`;
                         navigator.clipboard.writeText(emailBody);
                         setCopiedShareDetails(true);
                         setTimeout(() => setCopiedShareDetails(false), 2000);
                       }}
-                      className="text-[10px] font-bold uppercase tracking-wider text-black bg-black/5 px-2.5 py-1 rounded-md hover:bg-black/10 transition-colors cursor-pointer select-none"
+                      className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md transition-colors cursor-pointer select-none ${isDark ? 'text-zinc-300 bg-white/8 hover:bg-white/15' : 'text-indigo-700 bg-indigo-50 hover:bg-indigo-100'}`}
                     >
                       {copiedShareDetails ? "Copied!" : "Copy Body"}
                     </button>
                   </div>
 
                   <a
-                    href={`mailto:?subject=${encodeURIComponent(`AI Transcript Export: ${editTitle || "Shared Chat Transcript"}`)}&body=${encodeURIComponent(`Hi there,\n\nI exported this AI conversation transcript of "${editTitle || "Shared Chat Transcript"}" from ${editPlatform || "AI Assistant"}.\n\nDocument Summary:\n- Total message blocks: ${getSelectedMessageCount()}\n- Total word count approx: ${getSelectedWordCount()} words\n\nYou can attach the downloaded PDF/Word file to this email.\n\nGenerated via Chat2PDF.`)}`}
-                    className="w-full bg-white border border-gray-250 text-gray-800 hover:bg-gray-50 rounded-xl py-3 px-3 text-xs font-bold flex items-center justify-center space-x-2 transition-all cursor-pointer shadow-sm text-center"
+                    href={`mailto:?subject=${encodeURIComponent(`AI Transcript Export: ${editTitle || 'Shared Chat Transcript'}`)}&body=${encodeURIComponent(`Hi there,\n\nI exported this AI conversation transcript of "${editTitle || 'Shared Chat Transcript'}" from ${editPlatform || 'AI Assistant'}.\n\nDocument Summary:\n- Total message blocks: ${getSelectedMessageCount()}\n- Total word count approx: ${getSelectedWordCount()} words\n\nYou can attach the downloaded PDF/Word file to this email.\n\nGenerated via Chat2PDF.`)}`}
+                    className={`w-full rounded-xl py-3 px-3 text-xs font-bold flex items-center justify-center space-x-2 transition-all cursor-pointer text-center ${isDark ? 'glass-inner-dark text-zinc-200 hover:bg-white/10' : 'glass text-gray-700 hover:bg-white/80'}`}
                   >
                     <Mail className="w-3.5 h-3.5 text-gray-500" />
                     <span>Launch Draft Email</span>
@@ -1522,7 +1535,7 @@ def quicksort(arr): ...
                 </div>
 
                 {/* 3. Drop-to-Cloud Upload Center */}
-                <div className="border border-gray-150 p-4 rounded-xl flex items-center justify-between">
+                <div className={`p-4 rounded-xl flex items-center justify-between ${isDark ? 'glass-inner-dark' : 'glass-inner'}`}>
                   <div className="flex items-center space-x-2.5">
                     <div className="w-1.5 h-1.5 rounded-full bg-green-500 flex-shrink-0"></div>
                     <div className="text-[11px] text-zinc-650 font-medium leading-normal pr-2">
@@ -1534,7 +1547,7 @@ def quicksort(arr): ...
                       href="https://drive.google.com/drive/my-drive"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="p-2 bg-gray-50 hover:bg-gray-100 rounded-lg text-[11px] font-bold border border-gray-200 transition-colors inline-block text-zinc-700"
+                      className={`p-2 rounded-lg text-[11px] font-bold transition-colors inline-block ${isDark ? 'glass-inner-dark text-zinc-300 hover:bg-white/15' : 'glass text-indigo-700 hover:bg-white/80'}`}
                       title="Google Drive"
                     >
                       Drive
@@ -1543,7 +1556,7 @@ def quicksort(arr): ...
                       href="https://www.dropbox.com/home"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="p-2 bg-gray-50 hover:bg-gray-100 rounded-lg text-[11px] font-bold border border-gray-200 transition-colors inline-block text-zinc-700"
+                      className={`p-2 rounded-lg text-[11px] font-bold transition-colors inline-block ${isDark ? 'glass-inner-dark text-zinc-300 hover:bg-white/15' : 'glass text-indigo-700 hover:bg-white/80'}`}
                       title="Dropbox"
                     >
                       Dropbox
@@ -1554,7 +1567,7 @@ def quicksort(arr): ...
               </div>
 
               {/* Informative footer */}
-              <div className="mt-5 pt-3.5 border-t border-gray-100 text-center">
+              <div className={`mt-5 pt-3.5 border-t text-center ${isDark ? 'border-white/10' : 'border-white/50'}`}>
                 <p className="text-[10px] text-gray-400 font-medium">
                   We package transcripts completely in-browser. Zero data is ever stored outside your system.
                 </p>

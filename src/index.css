@@ -1,12 +1,119 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
 @theme {
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
 }
 
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 body {
-  background-color: #FAFAFA;
+  background-color: #e8f0fe;
   color: #1A1A1A;
   font-family: var(--font-sans);
+}
+
+/* ─── iOS Glassmorphism Utilities ─────────────────────────── */
+
+/* Light mode glass */
+.glass {
+  background: rgba(255, 255, 255, 0.62);
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  box-shadow:
+    0 8px 32px 0 rgba(31, 38, 135, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+/* Stronger light glass */
+.glass-strong {
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(40px) saturate(200%);
+  -webkit-backdrop-filter: blur(40px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow:
+    0 12px 48px 0 rgba(31, 38, 135, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+/* Dark mode glass */
+.glass-dark {
+  background: rgba(15, 23, 40, 0.60);
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  box-shadow:
+    0 8px 32px 0 rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* Subtle inner card glass */
+.glass-inner {
+  background: rgba(255, 255, 255, 0.48);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.60);
+}
+
+.glass-inner-dark {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Ambient animated background for light mode */
+.glass-bg-light {
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 10%, rgba(139, 197, 253, 0.35) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 20%, rgba(196, 181, 253, 0.28) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 60% at 50% 90%, rgba(167, 243, 208, 0.32) 0%, transparent 60%),
+    linear-gradient(135deg, #e0eaff 0%, #f0e8ff 30%, #d8f3e8 70%, #e8f4fd 100%);
+}
+
+/* Ambient animated background for dark mode */
+.glass-bg-dark {
+  background:
+    radial-gradient(ellipse 80% 60% at 10% 5%, rgba(70, 165, 137, 0.20) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 50% at 90% 15%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 50% at 50% 95%, rgba(16, 185, 129, 0.12) 0%, transparent 55%),
+    linear-gradient(135deg, #080d18 0%, #0f1728 40%, #0c2218 100%);
+}
+
+/* Floating orb decorations */
+.glass-orb {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+  animation: float-orb 12s ease-in-out infinite;
+}
+
+@keyframes float-orb {
+  0%, 100% { transform: translateY(0px) scale(1); opacity: 0.6; }
+  50% { transform: translateY(-24px) scale(1.05); opacity: 0.9; }
+}
+
+/* Shimmer highlight on glass cards */
+.glass-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.glass-shimmer::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.9), transparent);
+  border-radius: inherit;
+}
+
+/* Smooth spring transitions */
+.transition-glass {
+  transition: background 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
 }
