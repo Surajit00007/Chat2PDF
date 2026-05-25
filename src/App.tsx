@@ -76,6 +76,10 @@ export default function App() {
   // AI Cleanup Toggle
   const [useAiCleanup, setUseAiCleanup] = useState(true);
 
+  // Settings & Custom API Key States
+  const [settingsModalOpen, setSettingsModalOpen] = useState(false);
+  const [geminiApiKey, setGeminiApiKey] = useState(() => localStorage.getItem("gemini_api_key") || "");
+
   // --- PARSE TRIGGERS ---
   const handleParse = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,8 +99,8 @@ export default function App() {
       setLoadingStep("Sending payload to Gemini parser...");
       
       const payload = activeTab === "link"
-        ? { url: shareLink, useAiCleanup }
-        : { rawText: copiedText, useAiCleanup };
+        ? { url: shareLink, useAiCleanup, geminiApiKey: geminiApiKey || undefined }
+        : { rawText: copiedText, useAiCleanup, geminiApiKey: geminiApiKey || undefined };
 
       const res = await fetch("/api/parse-chat", {
         method: "POST",
@@ -894,7 +898,16 @@ export default function App() {
             </div>
           </div>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3">
+            <button
+              type="button"
+              onClick={() => setSettingsModalOpen(true)}
+              aria-label="Open Settings"
+              className={`inline-flex items-center justify-center rounded-full p-2.5 transition-all duration-300 ${isDark ? 'glass-inner-dark text-zinc-100 hover:bg-white/10' : 'glass-inner text-zinc-700 hover:bg-white/70'}`}
+            >
+              <Settings className="w-4 h-4" />
+            </button>
+
             <button
               type="button"
               onClick={() => setThemeMode((current) => (current === "light" ? "dark" : "light"))}
@@ -1608,6 +1621,113 @@ export default function App() {
               <div className={`mt-5 pt-3.5 border-t text-center ${isDark ? 'border-white/10' : 'border-white/50'}`}>
                 <p className="text-[10px] text-gray-400 font-medium">
                   We package transcripts completely in-browser. Zero data is ever stored outside your system.
+                </p>
+              </div>
+
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* --- SETTINGS MODAL --- */}
+      <AnimatePresence>
+        {settingsModalOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSettingsModalOpen(false)}
+              className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
+            />
+
+            {/* Modal Body */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              transition={{ type: "spring", duration: 0.4 }}
+              className={`relative w-full max-w-lg rounded-3xl p-6 sm:p-8 z-10 flex flex-col glass-shimmer transition-glass ${isDark ? 'glass-dark shadow-2xl shadow-black/50' : 'glass-strong shadow-2xl shadow-indigo-100/60'}`}
+            >
+              {/* Header */}
+              <div className={`flex items-center justify-between pb-4 border-b ${isDark ? 'border-white/10' : 'border-white/50'}`}>
+                <div className="flex items-center space-x-2.5">
+                  <div className={`p-2 rounded-xl ${isDark ? 'glass-inner-dark text-zinc-200' : 'glass-inner text-indigo-600'}`}>
+                    <Settings className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-black tracking-tight">Configuration Settings</h3>
+                    <p className="text-[11px] text-gray-400 font-medium">Manage integration variables</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setSettingsModalOpen(false)}
+                  className={`rounded-lg p-1.5 transition-colors ${isDark ? 'text-zinc-400 hover:text-white hover:bg-white/10' : 'text-gray-400 hover:text-indigo-700 hover:bg-white/70'}`}
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* API Key Panel */}
+              <div className="my-5 space-y-4">
+                <div className="space-y-2">
+                  <label htmlFor="gemini-key-input" className="block text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                    Custom Gemini API Key
+                  </label>
+                  <input
+                    type="password"
+                    id="gemini-key-input"
+                    value={geminiApiKey}
+                    onChange={(e) => {
+                      const newKey = e.target.value.trim();
+                      setGeminiApiKey(newKey);
+                      if (newKey) {
+                        localStorage.setItem("gemini_api_key", newKey);
+                      } else {
+                        localStorage.removeItem("gemini_api_key");
+                      }
+                    }}
+                    placeholder="AIzaSy..."
+                    className={`w-full px-4 py-3 rounded-xl text-xs font-mono outline-none focus:outline-none focus:ring-2 transition-all ${isDark ? 'bg-white/5 border border-white/10 text-zinc-100 focus:ring-white/10' : 'bg-white/50 border border-white/70 text-zinc-800 focus:ring-indigo-200/50 backdrop-blur-sm'}`}
+                  />
+                  <span className="text-[11px] text-gray-400 font-medium block leading-normal">
+                    This key is saved securely in your browser's <strong className="text-gray-600">local storage</strong> and is only used to parse document structures. Get a free key at <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-indigo-500 hover:underline">Google AI Studio</a>.
+                  </span>
+                </div>
+
+                {geminiApiKey && (
+                  <div className={`p-3 rounded-xl flex items-center justify-between ${isDark ? 'glass-inner-dark' : 'glass-inner'}`}>
+                    <div className="flex items-center space-x-2">
+                      <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
+                      <span className="text-[11px] font-bold text-zinc-650 uppercase tracking-wide">Custom API Key Active</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setGeminiApiKey("");
+                        localStorage.removeItem("gemini_api_key");
+                      }}
+                      className="text-[10px] font-bold text-rose-500 hover:text-rose-600 uppercase tracking-widest cursor-pointer"
+                    >
+                      Remove Key
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* CTA Done Button */}
+              <button
+                type="button"
+                onClick={() => setSettingsModalOpen(false)}
+                className={`w-full py-4 rounded-xl text-xs font-bold text-white transition-all cursor-pointer text-center ${isDark ? 'bg-indigo-600/80 hover:bg-indigo-500 border border-white/15' : 'bg-indigo-500 hover:bg-indigo-600'}`}
+              >
+                Save and Close
+              </button>
+
+              <div className={`mt-5 pt-3.5 border-t text-center ${isDark ? 'border-white/10' : 'border-white/50'}`}>
+                <p className="text-[10px] text-gray-400 font-medium">
+                  Settings are immediately active. Restart or reload is not required.
                 </p>
               </div>
 
