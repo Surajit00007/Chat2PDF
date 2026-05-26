@@ -1,5 +1,3 @@
-import { GoogleGenAI, Type } from "@google/genai";
-
 type ParsedRole = "user" | "assistant";
 
 interface ParsedMessage {
@@ -267,7 +265,7 @@ function decodeEscapedJsonString(value: string): string {
 
 function stripChatGptCitations(value: string): string {
   return value
-    .replace(/îˆ€urlîˆ‚([^î]+?)îˆ‚([^î]+?)îˆ/g, "[$1]($2)")
+    .replace(/îˆ€urlîˆ‚([^î]+?)îˆ‚([^î]+?)îˆ /g, "[$1]($2)")
     .replace(/url([^]+?)([^]+?)/g, "[$1]($2)");
 }
 
@@ -284,9 +282,7 @@ function readEscapedStringAt(source: string, quoteIndex: number): { value: strin
       slashCount++;
     }
 
-    // RSC strings are inside an escaped JS string. Delimiters are written as \",
-    // while literal quotes inside the message are usually written as \\\".
-    if (slashCount === 0) {
+    if (slashCount % 2 === 0) {
       return {
         value: source.slice(quoteIndex + 2, nextQuote),
         end: nextQuote + 2,
@@ -313,50 +309,61 @@ function extractReactFlightMessages(html: string): ParsedMessage[] {
   const records: Array<{ index: number; message: ParsedMessage }> = [];
   const messageSourceMarker = '\\"message_source\\",[';
   const metadataMarker = '\\",{},{\\"_126';
-  const assistantPartsMarker = "[274],[";
+
+  // Assistant messages loop using robust regex matching dynamic React Flight formats
+  const assistantRegex = /\[\d+\],\[\d+\],\\"/g;
+  let match;
+  while ((match = assistantRegex.exec(html)) !== null) {
+    const startIdx = match.index;
+    const quoteIndex = html.indexOf('\\"', startIdx + 5); 
+    if (quoteIndex === -1) continue;
+
+    const parsedContent = readEscapedStringAt(html, quoteIndex);
+    if (parsedContent) {
+      const content = stripChatGptCitations(decodeEscapedJsonString(parsedContent.value));
+      if (content.length > 30) {
+        records.push({
+          index: startIdx,
+          message: { role: "assistant", content },
+        });
+      }
+    }
+  }
+
+  // User messages loop using robust backwards scanning from ,\"user\"
+  let userCursor = 0;
+  const userMarker = ',\\"user\\"';
+  while ((userCursor = html.indexOf(userMarker, userCursor)) !== -1) {
+    const endQuoteIdx = userCursor - 2;
+    if (html.slice(endQuoteIdx, endQuoteIdx + 2) === '\\"') {
+      let startQuoteIdx = -1;
+      for (let i = endQuoteIdx - 1; i >= 0; i--) {
+        if (html.slice(i, i + 2) === '\\"') {
+          let slashes = 0;
+          for (let j = i - 1; j >= 0 && html[j] === "\\"; j--) {
+            slashes++;
+          }
+          if (slashes % 2 === 0) {
+            startQuoteIdx = i;
+            break;
+          }
+        }
+      }
+
+      if (startQuoteIdx !== -1) {
+        const content = stripChatGptCitations(decodeEscapedJsonString(html.slice(startQuoteIdx + 2, endQuoteIdx)));
+        if (content.length > 5) {
+          records.push({
+            index: startQuoteIdx,
+            message: { role: "user", content },
+          });
+        }
+      }
+    }
+    userCursor += userMarker.length;
+  }
 
   let cursor = 0;
-  while ((cursor = html.indexOf(assistantPartsMarker, cursor)) !== -1) {
-    const contentQuote = html.indexOf('],\\"', cursor);
-    if (contentQuote === -1) break;
-
-    const parsedContent = readEscapedStringAt(html, contentQuote + 2);
-    if (parsedContent) {
-      records.push({
-        index: cursor,
-        message: { role: "assistant", content: stripChatGptCitations(decodeEscapedJsonString(parsedContent.value)) },
-      });
-    }
-
-    cursor = contentQuote + 1;
-  }
-
-  cursor = 0;
-  while ((cursor = html.indexOf(messageSourceMarker, cursor)) !== -1) {
-    const contentQuote = html.indexOf('],\\"', cursor);
-    if (contentQuote === -1) break;
-
-    const parsedContent = readEscapedStringAt(html, contentQuote + 2);
-    if (!parsedContent) {
-      cursor = contentQuote + 1;
-      continue;
-    }
-
-    const roleQuote = html.indexOf(',\\"', parsedContent.end);
-    const parsedRole = roleQuote === -1 ? null : readEscapedStringAt(html, roleQuote + 1);
-    const role = normalizeRole(parsedRole?.value);
-
-    if (role) {
-      records.push({
-        index: cursor,
-        message: { role, content: stripChatGptCitations(decodeEscapedJsonString(parsedContent.value)) },
-      });
-    }
-
-    cursor = parsedContent.end;
-  }
-
-  cursor = 0;
   while ((cursor = html.indexOf(metadataMarker, cursor)) !== -1) {
     const rawContent = readEscapedStringBefore(html, cursor);
     const metadata = html.slice(cursor, cursor + 900);
@@ -422,51 +429,11 @@ function hasUsableMessages(value: any): value is ParsedConversation {
   return Array.isArray(value?.messages) && cleanMessages(value.messages).length > 0;
 }
 
-function getGeminiApiKey(): string | undefined {
-  return process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-}
-
-export function getAiClient(): GoogleGenAI | null {
-  const apiKey = getGeminiApiKey();
-  if (!apiKey) {
-    return null;
-  }
-
-  return new GoogleGenAI({
-    apiKey,
-    httpOptions: {
-      headers: {
-        "User-Agent": "aistudio-build",
-      },
-    },
-  });
-}
-
 export async function parseChatRequest(
-  body: { url?: string; rawText?: string; useAiCleanup?: boolean; geminiApiKey?: string } = {},
-  aiOverride?: GoogleGenAI | null
+  body: { url?: string; rawText?: string } = {}
 ): Promise<{ statusCode: number; body: Record<string, any> }> {
-  const { url, rawText, useAiCleanup = true, geminiApiKey } = body;
+  const { url, rawText } = body;
   
-  let ai: GoogleGenAI | null = null;
-  if (useAiCleanup) {
-    if (aiOverride) {
-      ai = aiOverride;
-    } else {
-      const apiKey = geminiApiKey?.trim() || getGeminiApiKey();
-      if (apiKey) {
-        ai = new GoogleGenAI({
-          apiKey,
-          httpOptions: {
-            headers: {
-              "User-Agent": "aistudio-build",
-            },
-          },
-        });
-      }
-    }
-  }
-
   let contentToParse = "";
   let isFetched = false;
   let targetUrl = url ? url.trim() : "";
@@ -553,99 +520,15 @@ export async function parseChatRequest(
     };
   }
 
-  if (!ai) {
-    return {
-      statusCode: 200,
-      body: {
-        success: false,
-        error: useAiCleanup
-          ? "Could not extract full chat messages from this input, and Gemini API Key is missing for AI cleanup. Paste the visible chat transcript or click the Settings gear icon to configure your own Gemini API key."
-          : "Could not automatically detect chat structure in this input. AI Cleanup is turned off — try switching it on, or paste the visible conversation text manually using the Paste Transcript tab.",
-      },
-    };
-  }
-
-  console.log(`Dispatching parser payload to Gemini. Character size: ${contentToParse.length}`);
-
-  const response = await ai.models.generateContent({
-    model: "gemini-3.5-flash",
-    contents: `Analyze the following code, chat log transcript, or raw crawled HTML containing an AI conversation. Parse it and convert it into a neat, chronological structured list of conversation participants and messages.
-
-Chat Log / HTML input to parse:
----
-${contentToParse}
----`,
-    config: {
-      systemInstruction: `You are an expert AI Chat Log Parser. Your single directive is to parse cluttered raw text, markdown blocks, copied elements, or raw HTML containing a shared AI chat (from ChatGPT, Claude, Gemini, DeepSeek, or other models), strip out UI clutter, and output a perfect schema-compliant JSON format.
-
-Remove:
-- UI control elements: "Copy", "Share", "Thumbs up", "Thumbs down", "Retry", "Regenerate".
-- Platform headers and footers, feedback request text, prompt helpers, user emails, profile icons, feedback buttons, etc.
-- Timestamps and relative date counters (like "3 hours ago", "yesterday") unless they represent integral content of the dialogue.
-- Any secondary prompts or placeholder boxes.
-
-Structure Requirements:
-- "title": Create a high-quality human-readable title centered on the core topic being discussed.
-- "platform": Try to identify the system. Options are "ChatGPT", "Claude", "Gemini", "DeepSeek", or "Other".
-- "messages": An array containing each message block in order:
-  - "role": Value MUST be either "user" or "assistant".
-  - "content": Clean formatted markdown of the original message. You MUST retain:
-    - Code blocks with syntax strings (e.g. \`\`\`tsx ... \`\`\`).
-    - Sub-headings, bullet lists, ordered lists, inline styling (bold, italics, etc.).
-    - Mathematical formula strings in proper LaTeX typesetting ($...$ or $$...$$).
-  - "avatar": A simple initial representation (e.g. "U" for user, "AI" for model, or initials).
-
-Strict JSON Constraint: Output MUST be a single JSON object. Output no extra chat, wrapping markdown delimiters, or formatting text outside of the raw JSON.`,
-      responseMimeType: "application/json",
-      responseSchema: {
-        type: Type.OBJECT,
-        properties: {
-          title: { type: Type.STRING },
-          platform: { type: Type.STRING },
-          messages: {
-            type: Type.ARRAY,
-            items: {
-              type: Type.OBJECT,
-              properties: {
-                role: { type: Type.STRING, enum: ["user", "assistant"] },
-                content: { type: Type.STRING },
-                avatar: { type: Type.STRING },
-              },
-              required: ["role", "content"],
-            },
-          },
-        },
-        required: ["title", "platform", "messages"],
-      },
-    },
-  });
-
-  const responseText = response.text;
-  if (!responseText) {
-    throw new Error("Received empty response from parsing model.");
-  }
-
-  const cleanJsonStr = responseText.trim();
-  const parsedConversation = JSON.parse(cleanJsonStr);
-  parsedConversation.messages = cleanMessages(parsedConversation.messages || []);
-
-  if (!hasUsableMessages(parsedConversation)) {
-    return {
-      statusCode: 200,
-      body: {
-        success: false,
-        error: "Only a title/headline was detected. I could not find the actual chat messages in this input. If this is a protected share page, open it in the browser, select the visible conversation text, copy it, and paste it into the Copy-Paste tab.",
-      },
-    };
-  }
-
   return {
     statusCode: 200,
     body: {
-      success: true,
-      data: parsedConversation,
-      isFetched,
-      parser: "gemini",
+      success: false,
+      error: "Could not automatically parse the chat structure from this input. Please make sure to copy and paste the entire visible text from your chat window (including user questions and assistant answers) or use a direct shared conversation URL.",
     },
   };
+}
+
+export function deterministicExtractPublic(source: string, isHtml: boolean): ParsedConversation | null {
+  return deterministicExtract(source, isHtml);
 }

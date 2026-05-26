@@ -27,6 +27,7 @@ import {
 import { motion, AnimatePresence } from "motion/react";
 import { jsPDF } from "jspdf";
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } from "docx";
+import { deterministicExtractPublic } from "./parser";
 
 // --- TYPES ---
 interface ChatMessage {
@@ -73,19 +74,12 @@ export default function App() {
   // Theme States
   const [themeMode, setThemeMode] = useState<"light" | "dark">("light");
 
-  // AI Cleanup Toggle
-  const [useAiCleanup, setUseAiCleanup] = useState(true);
-
-  // Settings & Custom API Key States
-  const [settingsModalOpen, setSettingsModalOpen] = useState(false);
-  const [geminiApiKey, setGeminiApiKey] = useState(() => localStorage.getItem("gemini_api_key") || "");
-
   // --- PARSE TRIGGERS ---
   const handleParse = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setErrorStatus(null);
-    setLoadingStep("Connecting to conversion server...");
+    setLoadingStep("Preparing to parse...");
 
     try {
       // Validate inputs
@@ -96,31 +90,42 @@ export default function App() {
         throw new Error("Please paste copied text transcript from your conversation tab.");
       }
 
-      setLoadingStep("Sending payload to Gemini parser...");
-      
-      const payload = activeTab === "link"
-        ? { url: shareLink, useAiCleanup, geminiApiKey: geminiApiKey || undefined }
-        : { rawText: copiedText, useAiCleanup, geminiApiKey: geminiApiKey || undefined };
+      let responseData;
+      if (activeTab === "paste") {
+        setLoadingStep("Parsing transcript locally...");
+        // Fast, high-fidelity local parsing (runs in milliseconds)
+        await new Promise((resolve) => setTimeout(resolve, 200));
 
-      const res = await fetch("/api/parse-chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+        const clientParsed = deterministicExtractPublic(copiedText, false);
+        if (!clientParsed) {
+          throw new Error("Could not automatically parse the chat structure from this input. Please make sure to copy and paste the entire visible text from your chat window (including user questions and assistant answers).");
+        }
+        responseData = { success: true, data: clientParsed };
+      } else {
+        setLoadingStep("Retrieving chat contents from link...");
+        
+        const payload = { url: shareLink };
 
-      if (!res.ok) {
-        const errorJson = await res.json().catch(() => ({}));
-        throw new Error(errorJson.error || `Server responded with error status ${res.status}`);
+        const res = await fetch("/api/parse-chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        if (!res.ok) {
+          const errorJson = await res.json().catch(() => ({}));
+          throw new Error(errorJson.error || `Server responded with error status ${res.status}`);
+        }
+
+        responseData = await res.json();
       }
-
-      const responseData = await res.json();
       
       if (!responseData.success) {
         if (responseData.blockedByCloudflare) {
           // Special friendly failure warning for Cloudflare intercept
           throw new Error(responseData.error);
         }
-        throw new Error(responseData.error || "Gemini was unable to recognize chat structures in this input.");
+        throw new Error(responseData.error || "Unable to recognize chat structures in this input.");
       }
 
       setLoadingStep("Polishing layout transcripts...");
@@ -901,15 +906,6 @@ export default function App() {
           <div className="flex items-center space-x-3">
             <button
               type="button"
-              onClick={() => setSettingsModalOpen(true)}
-              aria-label="Open Settings"
-              className={`inline-flex items-center justify-center rounded-full p-2.5 transition-all duration-300 ${isDark ? 'glass-inner-dark text-zinc-100 hover:bg-white/10' : 'glass-inner text-zinc-700 hover:bg-white/70'}`}
-            >
-              <Settings className="w-4 h-4" />
-            </button>
-
-            <button
-              type="button"
               onClick={() => setThemeMode((current) => (current === "light" ? "dark" : "light"))}
               aria-label={`Switch to ${themeMode === "light" ? "dark" : "light"} mode`}
               className={`inline-flex items-center justify-center rounded-full p-2.5 transition-all duration-300 ${isDark ? 'glass-inner-dark text-zinc-100 hover:bg-white/10' : 'glass-inner text-zinc-700 hover:bg-white/70'}`}
@@ -1062,40 +1058,7 @@ export default function App() {
                     </select>
                   </div>
 
-                  {/* AI Cleanup Toggle */}
-                  <div className={`flex items-center justify-between px-4 py-3 rounded-2xl transition-all ${isDark ? 'glass-inner-dark' : 'glass-inner'}`}>
-                    <div className="flex flex-col">
-                      <span className={`text-xs font-bold ${isDark ? 'text-zinc-200' : 'text-gray-700'}`}>
-                        AI Cleanup
-                      </span>
-                      <span className={`text-[10px] font-medium mt-0.5 ${isDark ? 'text-zinc-500' : 'text-gray-400'}`}>
-                        {useAiCleanup ? 'Uses Gemini to parse complex transcripts' : 'Deterministic parser only — no API key needed'}
-                      </span>
-                    </div>
-                    <button
-                      type="button"
-                      id="ai-cleanup-toggle"
-                      role="switch"
-                      aria-checked={useAiCleanup}
-                      onClick={() => setUseAiCleanup(v => !v)}
-                      className={`relative inline-flex h-7 w-12 flex-shrink-0 cursor-pointer rounded-full border-2 transition-all duration-300 focus:outline-none ${
-                        useAiCleanup
-                          ? isDark
-                            ? 'bg-indigo-500 border-indigo-400/50 shadow-lg shadow-indigo-500/30'
-                            : 'bg-indigo-500 border-indigo-400/50 shadow-lg shadow-indigo-300/50'
-                          : isDark
-                            ? 'bg-white/10 border-white/15'
-                            : 'bg-gray-200/80 border-gray-300/50'
-                      }`}
-                    >
-                      <span
-                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition-all duration-300 ${
-                          useAiCleanup ? 'translate-x-5' : 'translate-x-0.5'
-                        }`}
-                        style={{marginTop: '1px'}}
-                      />
-                    </button>
-                  </div>
+                  {/* Platform Detec Row */}
 
                   {/* Warning Messages */}
                   {errorStatus && (
@@ -1621,113 +1584,6 @@ export default function App() {
               <div className={`mt-5 pt-3.5 border-t text-center ${isDark ? 'border-white/10' : 'border-white/50'}`}>
                 <p className="text-[10px] text-gray-400 font-medium">
                   We package transcripts completely in-browser. Zero data is ever stored outside your system.
-                </p>
-              </div>
-
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-
-      {/* --- SETTINGS MODAL --- */}
-      <AnimatePresence>
-        {settingsModalOpen && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setSettingsModalOpen(false)}
-              className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
-            />
-
-            {/* Modal Body */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 15 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 15 }}
-              transition={{ type: "spring", duration: 0.4 }}
-              className={`relative w-full max-w-lg rounded-3xl p-6 sm:p-8 z-10 flex flex-col glass-shimmer transition-glass ${isDark ? 'glass-dark shadow-2xl shadow-black/50' : 'glass-strong shadow-2xl shadow-indigo-100/60'}`}
-            >
-              {/* Header */}
-              <div className={`flex items-center justify-between pb-4 border-b ${isDark ? 'border-white/10' : 'border-white/50'}`}>
-                <div className="flex items-center space-x-2.5">
-                  <div className={`p-2 rounded-xl ${isDark ? 'glass-inner-dark text-zinc-200' : 'glass-inner text-indigo-600'}`}>
-                    <Settings className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h3 className="text-base font-bold text-black tracking-tight">Configuration Settings</h3>
-                    <p className="text-[11px] text-gray-400 font-medium">Manage integration variables</p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setSettingsModalOpen(false)}
-                  className={`rounded-lg p-1.5 transition-colors ${isDark ? 'text-zinc-400 hover:text-white hover:bg-white/10' : 'text-gray-400 hover:text-indigo-700 hover:bg-white/70'}`}
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              {/* API Key Panel */}
-              <div className="my-5 space-y-4">
-                <div className="space-y-2">
-                  <label htmlFor="gemini-key-input" className="block text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                    Custom Gemini API Key
-                  </label>
-                  <input
-                    type="password"
-                    id="gemini-key-input"
-                    value={geminiApiKey}
-                    onChange={(e) => {
-                      const newKey = e.target.value.trim();
-                      setGeminiApiKey(newKey);
-                      if (newKey) {
-                        localStorage.setItem("gemini_api_key", newKey);
-                      } else {
-                        localStorage.removeItem("gemini_api_key");
-                      }
-                    }}
-                    placeholder="AIzaSy..."
-                    className={`w-full px-4 py-3 rounded-xl text-xs font-mono outline-none focus:outline-none focus:ring-2 transition-all ${isDark ? 'bg-white/5 border border-white/10 text-zinc-100 focus:ring-white/10' : 'bg-white/50 border border-white/70 text-zinc-800 focus:ring-indigo-200/50 backdrop-blur-sm'}`}
-                  />
-                  <span className="text-[11px] text-gray-400 font-medium block leading-normal">
-                    This key is saved securely in your browser's <strong className="text-gray-600">local storage</strong> and is only used to parse document structures. Get a free key at <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-indigo-500 hover:underline">Google AI Studio</a>.
-                  </span>
-                </div>
-
-                {geminiApiKey && (
-                  <div className={`p-3 rounded-xl flex items-center justify-between ${isDark ? 'glass-inner-dark' : 'glass-inner'}`}>
-                    <div className="flex items-center space-x-2">
-                      <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
-                      <span className="text-[11px] font-bold text-zinc-650 uppercase tracking-wide">Custom API Key Active</span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setGeminiApiKey("");
-                        localStorage.removeItem("gemini_api_key");
-                      }}
-                      className="text-[10px] font-bold text-rose-500 hover:text-rose-600 uppercase tracking-widest cursor-pointer"
-                    >
-                      Remove Key
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              {/* CTA Done Button */}
-              <button
-                type="button"
-                onClick={() => setSettingsModalOpen(false)}
-                className={`w-full py-4 rounded-xl text-xs font-bold text-white transition-all cursor-pointer text-center ${isDark ? 'bg-indigo-600/80 hover:bg-indigo-500 border border-white/15' : 'bg-indigo-500 hover:bg-indigo-600'}`}
-              >
-                Save and Close
-              </button>
-
-              <div className={`mt-5 pt-3.5 border-t text-center ${isDark ? 'border-white/10' : 'border-white/50'}`}>
-                <p className="text-[10px] text-gray-400 font-medium">
-                  Settings are immediately active. Restart or reload is not required.
                 </p>
               </div>
 
