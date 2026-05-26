@@ -78,6 +78,13 @@ function cleanMessages(messages: ParsedMessage[]): ParsedMessage[] {
         content = normalizeContent(searchMatch[1]);
       }
 
+      // Strip dynamic search/citation markers (e.g. filecite turn0file0 L7- or 【4:0†source】)
+      content = content
+        .replace(/\[?filecite\s+\S+\s+L\d+-?\]?/gi, "")
+        .replace(/【\d+(?::\d+)?†source】/g, "")
+        .replace(/\[\d+(?::\d+)?†source\]/g, "")
+        .trim();
+
       return {
         role: searchMatch ? "user" as ParsedRole : message.role,
         content,

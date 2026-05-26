@@ -236,6 +236,7 @@ export default function App() {
     const sanitizeForPDF = (textStr: string): string => {
       if (!textStr) return "";
       return String(textStr)
+        .replace(/\*\*/g, "") // Strip bold markdown asterisks
         .replace(/[\u2018\u2019]/g, "'")
         .replace(/[\u201C\u201D]/g, '"')
         .replace(/[\u2013\u2014]/g, "-")
@@ -568,7 +569,8 @@ export default function App() {
       let inCodeBlock = false;
 
       paragraphs.forEach((pText: string) => {
-        const trimmed = pText.trim();
+        const cleanPText = pText.replace(/\*\*/g, "");
+        const trimmed = cleanPText.trim();
 
         if (trimmed.startsWith("```")) {
           inCodeBlock = !inCodeBlock;
@@ -634,12 +636,12 @@ export default function App() {
                 spacing: { before: 180, after: 120 }
               })
             );
-          } else if (pText.length > 0) {
+          } else if (cleanPText.length > 0) {
             docChildren.push(
               new Paragraph({
                 children: [
                   new TextRun({
-                    text: pText,
+                    text: cleanPText,
                     font: "Calibri",
                     size: 22,
                     color: "1A1A1A"
