@@ -926,7 +926,6 @@ export default function App() {
 
       {/* --- MAIN PAGE CONTENT --- */}
       <main className="flex-1 min-h-0 py-6 px-4 sm:px-6 max-w-5xl w-full mx-auto flex flex-col overflow-hidden">
-        
         <AnimatePresence mode="wait">
           {!parsedData ? (
             /* ========================================================
@@ -938,38 +937,38 @@ export default function App() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -15 }}
               transition={{ duration: 0.25 }}
-              className="max-w-2xl mx-auto w-full flex flex-col space-y-8"
+              className="max-w-2xl mx-auto w-full flex flex-col space-y-4"
             >
               
               {/* Visual App Promo Header */}
-              <div className="text-center space-y-4 py-4">
-                <span className={`text-[11px] font-bold uppercase tracking-widest px-3.5 py-1.5 rounded-full inline-block glass-shimmer ${isDark ? 'glass-inner-dark text-white/90' : 'glass text-indigo-700'}`}>
+              <div className="text-center space-y-2 py-1">
+                <span className={`text-[11px] font-bold uppercase tracking-widest px-3 py-1 rounded-full inline-block ${isDark ? 'glass-inner-dark text-white/90' : 'bg-zinc-100 text-zinc-800 border border-zinc-200'}`}>
                   Chat2PDF
                 </span>
-                <h2 className={`text-4xl sm:text-5xl font-extrabold tracking-tighter leading-none mb-1 ${isDark ? "text-white" : "text-[#111111]"}`}>
-                  Turn AI chats into polished PDF documents.
+                <h2 className={`text-3xl sm:text-4xl font-extrabold tracking-tighter leading-none mb-0.5 ${isDark ? "text-white" : "text-[#111111]"}`}>
+                  Turn AI chats into PDFs.
                 </h2>
-                <p className={`text-lg sm:text-xl font-medium max-w-lg mx-auto ${isDark ? "text-zinc-300" : "text-gray-500"}`}>
-                  Simple, secure document generation from any AI conversation link or pasted transcript.
+                <p className={`text-sm sm:text-base font-medium max-w-md mx-auto ${isDark ? "text-zinc-300" : "text-zinc-500"}`}>
+                  Secure, instant document conversion directly in your browser.
                 </p>
               </div>
 
               {/* Central Box Layout */}
-              <div className={`rounded-3xl overflow-hidden p-2 sm:p-4 glass-shimmer transition-glass ${isDark ? 'glass-dark shadow-2xl shadow-black/40' : 'glass-strong shadow-2xl shadow-indigo-100/60'}`}>
+              <div className={`rounded-2xl overflow-hidden p-1.5 sm:p-2.5 transition-glass ${isDark ? 'glass-dark shadow-2xl shadow-black/40' : 'bg-white border border-zinc-200 shadow-xl shadow-zinc-100'}`}>
                 
                 {/* Method Toggles */}
-                <div className={`flex rounded-2xl p-1 mx-4 mt-4 ${isDark ? 'glass-inner-dark' : 'glass-inner'}`}>
+                <div className={`flex rounded-xl p-1 mx-2 mt-2 ${isDark ? 'glass-inner-dark' : 'bg-zinc-100 border border-zinc-200'}`}>
                   <button
                     type="button"
                     onClick={() => { setActiveTab("link"); setErrorStatus(null); }}
-                    className={`flex-1 flex items-center justify-center space-x-2 py-3 text-[13px] font-bold rounded-xl transition-all duration-200 ${
+                    className={`flex-1 flex items-center justify-center space-x-2 py-2 text-[13px] font-bold rounded-lg transition-all duration-200 ${
                       activeTab === "link"
                         ? isDark
                           ? 'bg-white/10 text-white shadow-md border border-white/20 backdrop-blur-sm'
-                          : 'glass-strong text-indigo-700 shadow-md border border-white/80'
+                          : 'bg-white text-zinc-950 shadow-sm border border-zinc-300 font-bold'
                         : isDark
                           ? 'text-zinc-300 hover:text-white hover:bg-white/5'
-                          : 'text-gray-500 hover:text-indigo-600 hover:bg-white/40'
+                          : 'text-zinc-500 hover:text-zinc-950 hover:bg-zinc-50'
                     }`}
                   >
                     <Link className="w-3.5 h-3.5" />
@@ -979,14 +978,14 @@ export default function App() {
                   <button
                     type="button"
                     onClick={() => { setActiveTab("paste"); setErrorStatus(null); }}
-                    className={`flex-1 flex items-center justify-center space-x-2 py-3 text-[13px] font-bold rounded-xl transition-all duration-200 ${
+                    className={`flex-1 flex items-center justify-center space-x-2 py-2 text-[13px] font-bold rounded-lg transition-all duration-200 ${
                       activeTab === "paste"
                         ? isDark
                           ? 'bg-white/10 text-white shadow-md border border-white/20 backdrop-blur-sm'
-                          : 'glass-strong text-indigo-700 shadow-md border border-white/80'
+                          : 'bg-white text-zinc-950 shadow-sm border border-zinc-300 font-bold'
                         : isDark
                           ? 'text-zinc-300 hover:text-white hover:bg-white/5'
-                          : 'text-gray-500 hover:text-indigo-600 hover:bg-white/40'
+                          : 'text-zinc-500 hover:text-zinc-950 hover:bg-zinc-50'
                     }`}
                   >
                     <Clipboard className="w-3.5 h-3.5" />
@@ -995,16 +994,16 @@ export default function App() {
                 </div>
 
                 {/* Form Input Container */}
-                <form onSubmit={handleParse} className="p-6 space-y-6">
+                <form onSubmit={handleParse} className="p-4 space-y-4">
                   
                   {activeTab === "link" ? (
                     /* Link Input */
-                    <div className="space-y-2">
-                      <label htmlFor="url" className="block text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-1">
+                    <div className="space-y-1.5">
+                      <label htmlFor="url" className="block text-[11px] font-bold uppercase tracking-widest text-zinc-400 mb-0.5">
                         Chat Share URL
                       </label>
                       <div className="relative rounded-xl">
-                        <div className="absolute inset-y-0 left-0 pl-4.5 flex items-center pointer-events-none text-gray-400">
+                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-zinc-400">
                           <Link className="h-4 w-4" />
                         </div>
                         <input
@@ -1014,45 +1013,45 @@ export default function App() {
                           value={shareLink}
                           onChange={(e) => setShareLink(e.target.value)}
                           placeholder="https://chatgpt.com/share/unique-link-id"
-                          className={`w-full pl-12 pr-4 py-4.5 rounded-xl text-[14px] placeholder-gray-400/70 outline-none focus:ring-2 transition-all ${isDark ? 'bg-white/5 border border-white/10 text-zinc-100 focus:ring-white/10 focus:border-white/25 focus:bg-white/8' : 'bg-white/50 border border-white/70 text-zinc-800 focus:ring-indigo-200/60 focus:border-white/90 focus:bg-white/75 backdrop-blur-sm'}`}
+                          className={`w-full pl-11 pr-4 py-3.5 rounded-xl text-[14px] placeholder-zinc-400 outline-none focus:ring-2 transition-all ${isDark ? 'bg-white/5 border border-white/10 text-zinc-100 focus:ring-white/10 focus:border-white/25 focus:bg-white/8' : 'bg-white border border-zinc-250 text-zinc-950 focus:ring-zinc-950/10 focus:border-zinc-950'}`}
                         />
                       </div>
-                      <span className="text-[11px] text-gray-400 font-medium block">
+                      <span className="text-[10px] text-zinc-400 font-medium block">
                         Direct conversion compatible with ChatGPT, Claude, and Gemini shared link systems.
                       </span>
                     </div>
                   ) : (
                     /* Manual Paste Input */
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center mb-1">
-                        <label htmlFor="pasted" className="block text-[11px] font-bold uppercase tracking-widest text-gray-400">
+                    <div className="space-y-1.5">
+                      <div className="flex justify-between items-center mb-0.5">
+                        <label htmlFor="pasted" className="block text-[11px] font-bold uppercase tracking-widest text-zinc-400">
                           Pasted Chat Transcript
                         </label>
-                        <span className="text-[10px] text-gray-400 font-bold uppercase bg-gray-100 px-2 py-0.5 rounded">Manual Input</span>
+                        <span className="text-[9px] text-zinc-400 font-bold uppercase bg-zinc-100 px-2 py-0.5 rounded">Manual Input</span>
                       </div>
                       <textarea
                         id="pasted"
                         value={copiedText}
                         onChange={(e) => setCopiedText(e.target.value)}
                         placeholder={`Paste any text transcript here directly. E.g.:\n\nUser: Hello! Please write a python quicksort.\nAI: Sure! Here is the code...\n\`\`\`python\ndef quicksort(arr): ...\n\`\`\``}
-                        className={`w-full min-h-[160px] p-4 text-[13px] rounded-xl font-mono overflow-y-auto leading-relaxed focus:outline-none focus:ring-2 outline-none transition-all ${isDark ? 'bg-white/5 border border-white/10 text-zinc-100 placeholder-zinc-500 focus:ring-white/10 focus:border-white/25' : 'bg-white/50 border border-white/70 text-zinc-800 placeholder-gray-400/70 focus:ring-indigo-200/60 focus:border-white/90 backdrop-blur-sm'}`}
+                        className={`w-full min-h-[120px] p-3 text-[13px] rounded-xl font-mono overflow-y-auto leading-relaxed focus:outline-none focus:ring-2 outline-none transition-all ${isDark ? 'bg-white/5 border border-white/10 text-zinc-100 placeholder-zinc-500 focus:ring-white/10 focus:border-white/25' : 'bg-white border border-zinc-250 text-zinc-950 placeholder-zinc-450 focus:ring-zinc-950/10 focus:border-zinc-950'}`}
                       />
-                      <span className="text-[11px] text-gray-400 font-medium block">
-                        Tip: Open your shared chat link, press <strong className="text-gray-600">Ctrl+A</strong> to select all, copy it (<strong className="text-gray-600">Ctrl+C</strong>), and paste it directly!
+                      <span className="text-[10px] text-zinc-400 font-medium block">
+                        Tip: Open your shared chat link, press <strong className="text-zinc-650">Ctrl+A</strong>, copy it (<strong className="text-zinc-650">Ctrl+C</strong>), and paste it directly!
                       </span>
                     </div>
                   )}
 
                   {/* Manual Platform Override Drops */}
-                  <div className="space-y-2">
-                    <label htmlFor="platform-select" className="block text-[11px] font-bold uppercase tracking-widest text-gray-400">
+                  <div className="space-y-1.5">
+                    <label htmlFor="platform-select" className="block text-[11px] font-bold uppercase tracking-widest text-zinc-400">
                       Platform Source (Optional override)
                     </label>
                     <select
                       id="platform-select"
                       value={platformOverride}
                       onChange={(e) => setPlatformOverride(e.target.value)}
-                      className={`w-full py-3.5 px-4 rounded-xl text-xs font-semibold outline-none focus:outline-none focus:ring-2 transition-all appearance-none cursor-pointer ${isDark ? 'bg-white/5 border border-white/10 text-zinc-200 focus:ring-white/10' : 'bg-white/50 border border-white/70 text-zinc-700 focus:ring-indigo-200/60 backdrop-blur-sm'}`}
+                      className={`w-full py-3 px-4 rounded-xl text-xs font-semibold outline-none focus:outline-none focus:ring-2 transition-all appearance-none cursor-pointer ${isDark ? 'bg-white/5 border border-white/10 text-zinc-200 focus:ring-white/10' : 'bg-white border border-zinc-250 text-zinc-850 focus:ring-zinc-950/10 focus:border-zinc-950'}`}
                     >
                       <option value="">Auto-Detect Platform</option>
                       <option value="ChatGPT">ChatGPT</option>
@@ -1062,11 +1061,9 @@ export default function App() {
                     </select>
                   </div>
 
-                  {/* Platform Detec Row */}
-
                   {/* Warning Messages */}
                   {errorStatus && (
-                    <div className="p-4 rounded-xl flex items-start space-x-2.5 border border-rose-200/60 bg-rose-50/70 backdrop-blur-sm">
+                    <div className="p-3.5 rounded-xl flex items-start space-x-2.5 border border-rose-250 bg-rose-50/70 backdrop-blur-sm">
                       <AlertCircle className="w-4 h-4 text-rose-600 mt-0.5 flex-shrink-0" />
                       <div className="text-xs text-rose-800 font-medium whitespace-pre-wrap leading-relaxed">
                         {errorStatus}
@@ -1078,7 +1075,7 @@ export default function App() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className={`w-full py-5 rounded-2xl text-[15px] font-bold select-none cursor-pointer active:scale-[0.99] disabled:opacity-50 disabled:pointer-events-none transition-all flex items-center justify-center space-x-2.5 glass-shimmer ${isDark ? 'bg-gradient-to-r from-indigo-600/80 to-emerald-600/70 text-white border border-white/20 shadow-lg shadow-indigo-900/30 hover:from-indigo-500/90 hover:to-emerald-500/80' : 'bg-gradient-to-r from-indigo-500 to-violet-500 text-white border border-indigo-400/30 shadow-lg shadow-indigo-300/50 hover:from-indigo-400 hover:to-violet-400'}`}
+                    className={`w-full py-4 rounded-xl text-[14px] font-bold select-none cursor-pointer active:scale-[0.99] disabled:opacity-50 disabled:pointer-events-none transition-all flex items-center justify-center space-x-2.5 ${isDark ? 'bg-gradient-to-r from-indigo-600/80 to-emerald-600/70 text-white border border-white/20 shadow-lg shadow-indigo-900/30 hover:from-indigo-500/90 hover:to-emerald-500/80' : 'bg-zinc-950 text-white border border-zinc-900 hover:bg-zinc-900 shadow-md shadow-zinc-200'}`}
                   >
                     {loading ? (
                       <>
@@ -1098,20 +1095,20 @@ export default function App() {
               </div>
 
               {/* Brand Minimalist Statistics Row */}
-              <div className={`flex items-center gap-6 sm:gap-12 justify-center py-5 rounded-2xl mx-2 ${isDark ? 'glass-inner-dark' : 'glass-inner'}`}>
-                <div className="text-center px-4">
-                  <div className={`text-xl sm:text-2xl font-bold ${isDark ? 'text-white' : 'text-indigo-700'}`}>15k+</div>
-                  <div className={`text-[11px] font-bold uppercase tracking-wider ${isDark ? 'text-zinc-400' : 'text-indigo-400'}`}>Files Exported</div>
+              <div className={`flex items-center gap-4 sm:gap-10 justify-center py-4 rounded-xl mx-2 ${isDark ? 'glass-inner-dark' : 'bg-zinc-55 border border-zinc-200 bg-zinc-50'}`}>
+                <div className="text-center px-2">
+                  <div className={`text-lg sm:text-xl font-extrabold ${isDark ? 'text-white' : 'text-zinc-950'}`}>15k+</div>
+                  <div className={`text-[10px] font-bold uppercase tracking-wider ${isDark ? 'text-zinc-400' : 'text-zinc-550 text-zinc-500'}`}>Files Exported</div>
                 </div>
-                <div className={`h-8 w-px ${isDark ? 'bg-white/10' : 'bg-indigo-200/50'}`}></div>
-                <div className="text-center px-4">
-                  <div className={`text-xl sm:text-2xl font-bold ${isDark ? 'text-white' : 'text-indigo-700'}`}>0%</div>
-                  <div className={`text-[11px] font-bold uppercase tracking-wider ${isDark ? 'text-zinc-400' : 'text-indigo-400'}`}>Data Stored</div>
+                <div className={`h-6 w-px ${isDark ? 'bg-white/10' : 'bg-zinc-200'}`}></div>
+                <div className="text-center px-2">
+                  <div className={`text-lg sm:text-xl font-extrabold ${isDark ? 'text-white' : 'text-zinc-950'}`}>0%</div>
+                  <div className={`text-[10px] font-bold uppercase tracking-wider ${isDark ? 'text-zinc-400' : 'text-zinc-550 text-zinc-500'}`}>Data Stored</div>
                 </div>
-                <div className={`h-8 w-px ${isDark ? 'bg-white/10' : 'bg-indigo-200/50'}`}></div>
-                <div className="text-center px-4">
-                  <div className={`text-xl sm:text-2xl font-bold ${isDark ? 'text-white' : 'text-indigo-700'}`}>Instant</div>
-                  <div className={`text-[11px] font-bold uppercase tracking-wider ${isDark ? 'text-zinc-400' : 'text-indigo-400'}`}>Processing</div>
+                <div className={`h-6 w-px ${isDark ? 'bg-white/10' : 'bg-zinc-200'}`}></div>
+                <div className="text-center px-2">
+                  <div className={`text-lg sm:text-xl font-extrabold ${isDark ? 'text-white' : 'text-zinc-950'}`}>Instant</div>
+                  <div className={`text-[10px] font-bold uppercase tracking-wider ${isDark ? 'text-zinc-400' : 'text-zinc-550 text-zinc-500'}`}>Processing</div>
                 </div>
               </div>
               
@@ -1136,23 +1133,23 @@ export default function App() {
                 <button
                   type="button"
                   onClick={resetHandler}
-                  className={`inline-flex items-center space-x-2 text-[11px] font-bold uppercase tracking-widest select-none cursor-pointer transition-colors ${isDark ? 'text-zinc-400 hover:text-white' : 'text-gray-400 hover:text-indigo-600'}`}
+                  className={`inline-flex items-center space-x-2 text-[11px] font-bold uppercase tracking-widest select-none cursor-pointer transition-colors ${isDark ? 'text-zinc-400 hover:text-white' : 'text-zinc-400 hover:text-zinc-950 font-semibold'}`}
                 >
                   <X className="w-4 h-4" />
                   <span>Convert New Document</span>
                 </button>
 
                 {/* Dashboard Meta Settings Wrapper */}
-                <div className={`rounded-3xl p-6 space-y-6 glass-shimmer transition-glass ${isDark ? 'glass-dark shadow-xl shadow-black/30' : 'glass-strong shadow-xl shadow-indigo-100/50'}`}>
+                <div className={`rounded-3xl p-6 space-y-6 transition-glass ${isDark ? 'glass-dark shadow-xl shadow-black/30' : 'bg-white border border-zinc-200 shadow-lg shadow-zinc-100'}`}>
                   
                   <div>
-                    <h3 className="text-base font-bold text-black tracking-tight">Document Settings</h3>
-                    <p className="text-[11px] text-gray-400 font-medium mt-0.5">Edit metadata before download</p>
+                    <h3 className="text-base font-bold text-zinc-950 tracking-tight">Document Settings</h3>
+                    <p className="text-[11px] text-zinc-400 font-medium mt-0.5">Edit metadata before download</p>
                   </div>
 
                   {/* Edit Custom Title Form Input */}
                   <div className="space-y-1.5">
-                    <label htmlFor="doc-title" className="block text-[11px] font-bold uppercase tracking-widest text-gray-400">
+                    <label htmlFor="doc-title" className="block text-[11px] font-bold uppercase tracking-widest text-zinc-400">
                       Export Title
                     </label>
                     <input
@@ -1161,13 +1158,13 @@ export default function App() {
                       value={editTitle}
                       onChange={(e) => setEditTitle(e.target.value)}
                       placeholder="Title on document page"
-                      className={`w-full px-4 py-3 rounded-xl text-xs font-semibold outline-none focus:outline-none focus:ring-2 transition-all ${isDark ? 'bg-white/5 border border-white/10 text-zinc-100 focus:ring-white/10' : 'bg-white/50 border border-white/70 text-zinc-800 focus:ring-indigo-200/50 backdrop-blur-sm'}`}
+                      className={`w-full px-4 py-3 rounded-xl text-xs font-semibold outline-none focus:outline-none focus:ring-2 transition-all ${isDark ? 'bg-white/5 border border-white/10 text-zinc-100 focus:ring-white/10' : 'bg-white border border-zinc-200 text-zinc-950 focus:ring-zinc-950/10 focus:border-zinc-950'}`}
                     />
                   </div>
 
                   {/* Override Platform Input */}
                   <div className="space-y-1.5">
-                    <label htmlFor="doc-platform" className="block text-[11px] font-bold uppercase tracking-widest text-[#999999]">
+                    <label htmlFor="doc-platform" className="block text-[11px] font-bold uppercase tracking-widest text-zinc-400">
                       Platform Source Label
                     </label>
                     <input
@@ -1176,20 +1173,20 @@ export default function App() {
                       value={editPlatform}
                       onChange={(e) => setEditPlatform(e.target.value)}
                       placeholder="e.g. ChatGPT, Claude..."
-                      className={`w-full px-4 py-3 rounded-xl text-xs font-semibold outline-none focus:outline-none focus:ring-2 transition-all ${isDark ? 'bg-white/5 border border-white/10 text-zinc-100 focus:ring-white/10' : 'bg-white/50 border border-white/70 text-zinc-800 focus:ring-indigo-200/50 backdrop-blur-sm'}`}
+                      className={`w-full px-4 py-3 rounded-xl text-xs font-semibold outline-none focus:outline-none focus:ring-2 transition-all ${isDark ? 'bg-white/5 border border-white/10 text-zinc-100 focus:ring-white/10' : 'bg-white border border-zinc-200 text-zinc-950 focus:ring-zinc-950/10 focus:border-zinc-950'}`}
                     />
                   </div>
 
                   {/* Statistical Badges list */}
-                  <div className={`rounded-2xl p-4 space-y-2.5 ${isDark ? 'glass-inner-dark' : 'glass-inner'}`}>
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block pb-1 border-b border-gray-200/50">Conversion Details</span>
+                  <div className={`rounded-2xl p-4 space-y-2.5 ${isDark ? 'glass-inner-dark' : 'bg-zinc-50 border border-zinc-200'}`}>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 block pb-1 border-b border-zinc-200/50">Conversion Details</span>
                     <div className="flex justify-between items-center text-xs">
-                      <span className="text-gray-500 font-semibold">Included Messages:</span>
-                      <span className="font-bold text-black">{getSelectedMessageCount()} / {parsedData.messages.length}</span>
+                      <span className="text-zinc-500 font-semibold">Included Messages:</span>
+                      <span className="font-bold text-zinc-950">{getSelectedMessageCount()} / {parsedData.messages.length}</span>
                     </div>
                     <div className="flex justify-between items-center text-xs">
-                      <span className="text-gray-500 font-semibold">Est. Print Pages:</span>
-                      <span className="font-bold text-black">{Math.max(1, Math.ceil(getSelectedWordCount() / 420))} pages</span>
+                      <span className="text-zinc-500 font-semibold">Est. Print Pages:</span>
+                      <span className="font-bold text-zinc-950">{Math.max(1, Math.ceil(getSelectedWordCount() / 420))} pages</span>
                     </div>
                   </div>
 
@@ -1198,7 +1195,7 @@ export default function App() {
                     <button
                       type="button"
                       onClick={downloadPDF}
-                      className={`w-full rounded-2xl py-4 px-4 text-xs font-bold cursor-pointer transition-all flex items-center justify-center space-x-2 glass-shimmer ${isDark ? 'bg-gradient-to-r from-indigo-600/80 to-violet-600/70 text-white border border-white/15 shadow-lg shadow-indigo-900/30 hover:from-indigo-500/90 hover:to-violet-500/80' : 'bg-gradient-to-r from-indigo-500 to-violet-500 text-white border border-indigo-400/30 shadow-lg shadow-indigo-200/60 hover:from-indigo-400 hover:to-violet-400'}`}
+                      className={`w-full rounded-2xl py-4 px-4 text-xs font-bold cursor-pointer transition-all flex items-center justify-center space-x-2 ${isDark ? 'bg-gradient-to-r from-indigo-600/80 to-violet-600/70 text-white border border-white/15 shadow-lg shadow-indigo-900/30 hover:from-indigo-500/90 hover:to-violet-500/80' : 'bg-zinc-950 text-white border border-zinc-900 hover:bg-zinc-900 shadow-md shadow-zinc-200'}`}
                     >
                       <Download className="w-3.5 h-3.5" />
                       <span>Download PDF Document</span>
@@ -1207,9 +1204,9 @@ export default function App() {
                     <button
                       type="button"
                       onClick={downloadDOCX}
-                      className={`w-full rounded-2xl py-4 px-4 text-xs font-bold cursor-pointer transition-all flex items-center justify-center space-x-2 ${isDark ? 'glass-inner-dark text-zinc-200 hover:bg-white/10' : 'glass text-indigo-700 hover:bg-white/80'}`}
+                      className={`w-full rounded-2xl py-4 px-4 text-xs font-bold cursor-pointer transition-all flex items-center justify-center space-x-2 ${isDark ? 'glass-inner-dark text-zinc-200 hover:bg-white/10' : 'bg-zinc-100 text-zinc-900 border border-zinc-200 hover:bg-zinc-200'}`}
                     >
-                      <FileCheck2 className={`w-3.5 h-3.5 ${isDark ? 'text-zinc-400' : 'text-indigo-400'}`} />
+                      <FileCheck2 className={`w-3.5 h-3.5 ${isDark ? 'text-zinc-400' : 'text-zinc-500'}`} />
                       <span>Export to Word (.docx)</span>
                     </button>
 
@@ -1221,9 +1218,9 @@ export default function App() {
                         setNativeShareError("");
                         setCopiedShareDetails(false);
                       }}
-                      className={`w-full rounded-2xl py-4 px-4 text-xs font-bold cursor-pointer transition-all flex items-center justify-center space-x-2 ${isDark ? 'glass-inner-dark text-zinc-200 hover:bg-white/10' : 'glass text-gray-700 hover:bg-white/80'}`}
+                      className={`w-full rounded-2xl py-4 px-4 text-xs font-bold cursor-pointer transition-all flex items-center justify-center space-x-2 ${isDark ? 'glass-inner-dark text-zinc-200 hover:bg-white/10' : 'bg-zinc-100 text-zinc-900 border border-zinc-200 hover:bg-zinc-200'}`}
                     >
-                      <Share2 className={`w-3.5 h-3.5 ${isDark ? 'text-zinc-400' : 'text-gray-400'}`} />
+                      <Share2 className={`w-3.5 h-3.5 ${isDark ? 'text-zinc-400' : 'text-zinc-500'}`} />
                       <span>Share Document</span>
                     </button>
                   </div>
@@ -1237,25 +1234,25 @@ export default function App() {
                 
                 {/* Visual Draft Header Info */}
                 <div className="flex-shrink-0 flex justify-between items-center px-2">
-                  <div className={`flex items-center space-x-2 text-[10px] font-bold py-1.5 px-3.5 rounded-full uppercase tracking-widest select-none glass-shimmer ${isDark ? 'glass-inner-dark text-zinc-200' : 'glass text-indigo-700'}`}>
-                    <Eye className={`w-3.5 h-3.5 ${isDark ? 'text-zinc-300' : 'text-indigo-600'}`} />
+                  <div className={`flex items-center space-x-2 text-[10px] font-bold py-1.5 px-3.5 rounded-full uppercase tracking-widest select-none ${isDark ? 'glass-inner-dark text-zinc-200' : 'bg-zinc-100 border border-zinc-200 text-zinc-950 font-bold'}`}>
+                    <Eye className={`w-3.5 h-3.5 ${isDark ? 'text-zinc-300' : 'text-zinc-950'}`} />
                     <span>Live Document Draft</span>
                   </div>
-                  <span className={`text-xs font-medium ${isDark ? 'text-zinc-400' : 'text-gray-400'}`}>Click checkboxes to toggle transcript blocks</span>
+                  <span className={`text-xs font-medium ${isDark ? 'text-zinc-400' : 'text-zinc-450 text-zinc-500'}`}>Click checkboxes to toggle transcript blocks</span>
                 </div>
 
                 {/* Draft Simulated Paper Space */}
-                <div className={`flex-1 min-h-0 flex flex-col rounded-3xl overflow-hidden glass-shimmer transition-glass ${isDark ? 'glass-dark shadow-2xl shadow-black/40' : 'glass-strong shadow-2xl shadow-indigo-100/50'}`}>
+                <div className={`flex-1 min-h-0 flex flex-col rounded-3xl overflow-hidden transition-glass ${isDark ? 'glass-dark shadow-2xl shadow-black/40' : 'bg-white border border-zinc-300 shadow-xl shadow-zinc-200'}`}>
                   
                   {/* Paper Header banner layout */}
-                  <div className={`flex-shrink-0 p-8 sm:p-10 border-b ${isDark ? 'bg-white/3 border-white/10' : 'bg-white/30 border-white/50'}`}>
+                  <div className={`flex-shrink-0 p-8 sm:p-10 border-b ${isDark ? 'bg-white/3 border-white/10' : 'bg-zinc-50 border-b border-zinc-200'}`}>
                     <div className="max-w-xl mx-auto space-y-3">
                       <div className="flex items-center space-x-2">
-                        <span className={`text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full glass-inner ${isDark ? 'text-zinc-400' : 'text-indigo-500'}`}>
+                        <span className={`text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full ${isDark ? 'text-zinc-400' : 'bg-zinc-100 text-zinc-650 text-zinc-500 border border-zinc-250'}`}>
                           {editPlatform || "AI"} Transcript
                         </span>
                       </div>
-                      <h2 className="text-3xl font-black text-black tracking-tight leading-tight">
+                      <h2 className="text-3xl font-black text-zinc-950 tracking-tight leading-tight">
                         {editTitle || "Shared Chat Transcript"}
                       </h2>
                     </div>
@@ -1265,9 +1262,9 @@ export default function App() {
                   <div className={`flex-1 overflow-y-auto p-6 sm:p-10 space-y-6 max-w-xl w-full mx-auto ${isDark ? 'bg-transparent' : 'bg-transparent'}`}>
                     
                     {parsedData.messages.map((msg) => {
-                      const isUser = msg.role === "user";
-                      const isEnabled = msg.enabled;
-                      const isCurrentlyEditing = editingMessageId === msg.id;
+                       const isUser = msg.role === "user";
+                       const isEnabled = msg.enabled;
+                       const isCurrentlyEditing = editingMessageId === msg.id;
 
                       return (
                         <div
@@ -1283,15 +1280,15 @@ export default function App() {
                               >
                                 <div className={`w-4 h-4 rounded-md flex items-center justify-center transition-all ${
                                   isEnabled
-                                    ? "bg-black text-white"
-                                    : "border border-gray-300 bg-white"
+                                    ? "bg-zinc-950 text-white border border-zinc-950"
+                                    : "border border-zinc-300 bg-white"
                                 }`}>
                                   {isEnabled && <Check className="w-3 h-3 stroke-[3]" />}
                                 </div>
                                 <span className={`text-[11px] font-bold uppercase tracking-widest ${
                                   isEnabled
-                                    ? "text-black"
-                                    : "text-gray-300 line-through"
+                                    ? "text-zinc-950"
+                                    : "text-zinc-300 line-through"
                                 }`}>
                                   {isUser ? "User Prompt" : `${editPlatform || "AI"} Response`}
                                 </span>
@@ -1321,38 +1318,38 @@ export default function App() {
                               )}
                             </div>
 
-                            <div className={`rounded-[24px] px-4 py-4 sm:px-5 sm:py-5 transition-all glass-shimmer ${
+                            <div className={`rounded-[24px] px-4 py-4 sm:px-5 sm:py-5 transition-all ${
                               isEnabled
                                 ? isUser
                                   ? isDark
                                     ? 'bg-indigo-500/10 border border-indigo-400/20 backdrop-blur-md'
-                                    : 'bg-indigo-50/60 border border-indigo-200/50 backdrop-blur-md'
+                                    : 'bg-zinc-50 border border-zinc-200 shadow-sm'
                                   : isDark
                                     ? 'glass-dark'
-                                    : 'glass'
+                                    : 'bg-white border border-zinc-200 shadow-sm'
                                 : isDark
                                   ? 'opacity-25 glass-inner-dark'
-                                  : 'opacity-25 glass-inner'
+                                  : 'opacity-25 bg-zinc-50 border border-zinc-200 text-zinc-400'
                             }`}>
                               {isCurrentlyEditing ? (
                                 <div className="space-y-3">
                                   <textarea
                                     value={editingMessageText}
                                     onChange={(e) => setEditingMessageText(e.target.value)}
-                                    className="w-full min-h-[105px] text-xs bg-white border border-gray-200 p-3 rounded-lg outline-none focus:ring-2 focus:ring-black/5 focus:border-black font-mono text-zinc-800"
+                                    className="w-full min-h-[105px] text-xs bg-white border border-zinc-200 p-3 rounded-lg outline-none focus:ring-2 focus:ring-zinc-950/10 focus:border-zinc-950 font-mono text-zinc-800"
                                   />
                                   <div className="flex justify-end gap-3">
                                     <button
                                       type="button"
                                       onClick={() => setEditingMessageId(null)}
-                                      className="px-3 py-1.5 text-[10px] font-bold text-gray-400 uppercase hover:text-black rounded transition-colors tracking-wider"
+                                      className="px-3 py-1.5 text-[10px] font-bold text-zinc-400 uppercase hover:text-zinc-950 rounded transition-colors tracking-wider"
                                     >
                                       Cancel
                                     </button>
                                     <button
                                       type="button"
                                       onClick={saveEditingMessage}
-                                      className="px-4 py-1.5 text-[10px] bg-black text-white font-bold uppercase rounded-xl hover:opacity-90 transition-opacity tracking-wider"
+                                      className="px-4 py-1.5 text-[10px] bg-zinc-950 text-white font-bold uppercase rounded-xl hover:opacity-90 transition-opacity tracking-wider"
                                     >
                                       Save Changes
                                     </button>
