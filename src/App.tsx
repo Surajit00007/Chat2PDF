@@ -879,12 +879,16 @@ export default function App() {
   const isDark = themeMode === "dark";
 
   return (
-    <div className={`min-h-screen font-sans antialiased flex flex-col selection:bg-purple-200/60 selection:text-purple-900 ${isDark ? "glass-bg-dark text-zinc-100" : "glass-bg-light text-[#1A1A1A]"}`}>
+    <div className={`h-screen overflow-hidden font-sans antialiased flex flex-col selection:bg-zinc-800 selection:text-white ${isDark ? "glass-bg-dark text-zinc-100" : "glass-bg-light text-[#111111]"}`}>
       
-      {/* Ambient decorative orbs */}
-      <div className="glass-orb w-[520px] h-[520px] top-[-140px] left-[-120px] opacity-50" style={{background: isDark ? 'rgba(70,165,137,0.18)' : 'rgba(139,197,253,0.40)'}} />
-      <div className="glass-orb w-[400px] h-[400px] top-[30%] right-[-100px] opacity-40" style={{animationDelay:'4s', background: isDark ? 'rgba(99,102,241,0.14)' : 'rgba(196,181,253,0.38)'}} />
-      <div className="glass-orb w-[350px] h-[350px] bottom-[5%] left-[15%] opacity-35" style={{animationDelay:'8s', background: isDark ? 'rgba(16,185,129,0.12)' : 'rgba(167,243,208,0.45)'}} />
+      {/* Ambient decorative orbs (only in dark mode) */}
+      {isDark && (
+        <>
+          <div className="glass-orb w-[520px] h-[520px] top-[-140px] left-[-120px] opacity-50" style={{background: 'rgba(70,165,137,0.18)'}} />
+          <div className="glass-orb w-[400px] h-[400px] top-[30%] right-[-100px] opacity-40" style={{animationDelay:'4s', background: 'rgba(99,102,241,0.14)'}} />
+          <div className="glass-orb w-[350px] h-[350px] bottom-[5%] left-[15%] opacity-35" style={{animationDelay:'8s', background: 'rgba(16,185,129,0.12)'}} />
+        </>
+      )}
 
       {/* --- APP HEADER --- */}
       <header className={`sticky top-0 z-50 px-6 py-4 ${isDark ? 'glass-dark' : 'glass'} border-b ${isDark ? 'border-white/10' : 'border-white/60'}`}>
@@ -921,7 +925,7 @@ export default function App() {
       </header>
 
       {/* --- MAIN PAGE CONTENT --- */}
-      <main className="flex-grow py-12 px-4 sm:px-6 max-w-5xl w-full mx-auto flex flex-col">
+      <main className="flex-1 min-h-0 py-6 px-4 sm:px-6 max-w-5xl w-full mx-auto flex flex-col overflow-hidden">
         
         <AnimatePresence mode="wait">
           {!parsedData ? (
@@ -1122,11 +1126,11 @@ export default function App() {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.98 }}
               transition={{ duration: 0.25 }}
-              className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start w-full"
+              className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch w-full flex-1 min-h-0 overflow-hidden"
             >
               
               {/* --- LEFT COL: INSPECTOR & GLOBAL SETTINGS (lg:col-span-4) --- */}
-              <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-24">
+              <div className="lg:col-span-4 flex flex-col space-y-6 max-h-full overflow-y-auto pr-1 pb-4">
                 
                 {/* Back / Reset CTA */}
                 <button
@@ -1229,10 +1233,10 @@ export default function App() {
               </div>
 
               {/* --- RIGHT COL: LIVE DRAFT WORKSPACE (lg:col-span-8) --- */}
-              <div className="lg:col-span-8 space-y-6">
+              <div className="lg:col-span-8 flex flex-col space-y-4 max-h-full overflow-hidden">
                 
                 {/* Visual Draft Header Info */}
-                <div className="flex justify-between items-center px-2">
+                <div className="flex-shrink-0 flex justify-between items-center px-2">
                   <div className={`flex items-center space-x-2 text-[10px] font-bold py-1.5 px-3.5 rounded-full uppercase tracking-widest select-none glass-shimmer ${isDark ? 'glass-inner-dark text-zinc-200' : 'glass text-indigo-700'}`}>
                     <Eye className={`w-3.5 h-3.5 ${isDark ? 'text-zinc-300' : 'text-indigo-600'}`} />
                     <span>Live Document Draft</span>
@@ -1241,10 +1245,10 @@ export default function App() {
                 </div>
 
                 {/* Draft Simulated Paper Space */}
-                <div className={`rounded-3xl overflow-hidden glass-shimmer transition-glass ${isDark ? 'glass-dark shadow-2xl shadow-black/40' : 'glass-strong shadow-2xl shadow-indigo-100/50'}`}>
+                <div className={`flex-1 min-h-0 flex flex-col rounded-3xl overflow-hidden glass-shimmer transition-glass ${isDark ? 'glass-dark shadow-2xl shadow-black/40' : 'glass-strong shadow-2xl shadow-indigo-100/50'}`}>
                   
                   {/* Paper Header banner layout */}
-                  <div className={`p-8 sm:p-10 border-b ${isDark ? 'bg-white/3 border-white/10' : 'bg-white/30 border-white/50'}`}>
+                  <div className={`flex-shrink-0 p-8 sm:p-10 border-b ${isDark ? 'bg-white/3 border-white/10' : 'bg-white/30 border-white/50'}`}>
                     <div className="max-w-xl mx-auto space-y-3">
                       <div className="flex items-center space-x-2">
                         <span className={`text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full glass-inner ${isDark ? 'text-zinc-400' : 'text-indigo-500'}`}>
@@ -1258,7 +1262,7 @@ export default function App() {
                   </div>
 
                   {/* Message stack mapping */}
-                  <div className={`p-6 sm:p-10 space-y-6 max-w-xl mx-auto ${isDark ? 'bg-transparent' : 'bg-transparent'}`}>
+                  <div className={`flex-1 overflow-y-auto p-6 sm:p-10 space-y-6 max-w-xl w-full mx-auto ${isDark ? 'bg-transparent' : 'bg-transparent'}`}>
                     
                     {parsedData.messages.map((msg) => {
                       const isUser = msg.role === "user";
@@ -1378,22 +1382,24 @@ export default function App() {
       </main>
 
       {/* --- FOOTER REGION --- */}
-      <footer className={`border-t py-8 mt-16 px-6 ${isDark ? 'glass-dark border-white/10' : 'glass border-white/60'}`}>
-        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between text-[12px] text-gray-400 font-medium space-y-3 sm:space-y-0">
-          <div className="flex items-center gap-6">
-            <span>© 2026 Chat2PDF</span>
-            <span>Privacy Policy</span>
-            <span>Terms</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <span>v1.2.4</span>
-            <div className="flex items-center gap-1.5 font-bold text-zinc-500 uppercase tracking-widest text-[10px]">
-              <span className="w-2 h-2 rounded-full bg-green-500"></span>
-              <span>System Operational</span>
+      {!parsedData && (
+        <footer className={`flex-shrink-0 border-t py-6 px-6 ${isDark ? 'glass-dark border-white/10' : 'glass border-white/60'}`}>
+          <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between text-[12px] text-gray-400 font-medium space-y-3 sm:space-y-0">
+            <div className="flex items-center gap-6">
+              <span>© 2026 Chat2PDF</span>
+              <span>Privacy Policy</span>
+              <span>Terms</span>
+            </div>
+            <div className="flex items-center gap-4">
+              <span>v1.2.4</span>
+              <div className="flex items-center gap-1.5 font-bold text-zinc-500 uppercase tracking-widest text-[10px]">
+                <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                <span>System Operational</span>
+              </div>
             </div>
           </div>
-        </div>
-      </footer>
+        </footer>
+      )}
 
       {/* --- SHARE MODAL --- */}
       <AnimatePresence>
