@@ -78,11 +78,14 @@ function cleanMessages(messages: ParsedMessage[]): ParsedMessage[] {
         content = normalizeContent(searchMatch[1]);
       }
 
-      // Strip dynamic search/citation markers (e.g. filecite turn0file0 L7- or 【4:0†source】)
+      // Strip dynamic search/citation markers in all known formats:
+      // e.g. 【fileciteturn0file0L1-L1】, fileciteturn0file0L1-L1, 【4:0†source】, [4:0†source]
       content = content
-        .replace(/\[?filecite\s+\S+\s+L\d+-?\]?/gi, "")
+        .replace(/【filecite[^】]*】/gi, "")
+        .replace(/filecite\w*/gi, "")
         .replace(/【\d+(?::\d+)?†source】/g, "")
         .replace(/\[\d+(?::\d+)?†source\]/g, "")
+        .replace(/\[?filecite\s+\S+\s+L\d+-?\]?/gi, "")
         .trim();
 
       return {

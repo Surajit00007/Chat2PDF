@@ -1,5 +1,6 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import katex from "katex";
 import { 
   FileText, 
   Download, 
@@ -73,6 +74,9 @@ export default function App() {
 
   // Theme States
   const [themeMode, setThemeMode] = useState<"light" | "dark">("light");
+
+  // Layout States
+  const [fontSize, setFontSize] = useState<"small" | "medium" | "large">("medium");
 
   // --- PARSE TRIGGERS ---
   const handleParse = async (e: React.FormEvent) => {
@@ -237,6 +241,12 @@ export default function App() {
       if (!textStr) return "";
       return String(textStr)
         .replace(/\*\*/g, "") // Strip bold markdown asterisks
+        // Convert LaTeX block math \[...\] to readable plain text
+        .replace(/\\\[([\s\S]*?)\\\]/g, (_match, expr) => `[Formula: ${latexToPlainText(expr.trim())}]`)
+        // Convert LaTeX inline math \(...\)
+        .replace(/\\\(([\s\S]*?)\\\)/g, (_match, expr) => latexToPlainText(expr.trim()))
+        // Convert single-dollar inline math $...$
+        .replace(/\$([^$\n]+?)\$/g, (_match, expr) => latexToPlainText(expr.trim()))
         .replace(/[\u2018\u2019]/g, "'")
         .replace(/[\u201C\u201D]/g, '"')
         .replace(/[\u2013\u2014]/g, "-")
@@ -565,7 +575,19 @@ export default function App() {
         })
       );
 
-      const paragraphs = String(msg.content || "").split(/\r?\n/);
+      const paragraphs = String(msg.content || "")
+        // Convert block math \\[...\\] to [Formula: readable text]
+        .replace(/\\\[[\s\S]*?\\\]/g, (m) => {
+          const expr = m.slice(2, -2).trim();
+          return `[Formula: ${latexToPlainText(expr)}]`;
+        })
+        // Convert inline math \\(...\\)
+        .replace(/\\\([\s\S]*?\\\)/g, (m) => {
+          return latexToPlainText(m.slice(2, -2).trim());
+        })
+        // Convert $...$ inline math
+        .replace(/\$([^$\n]+?)\$/g, (_m, expr) => latexToPlainText(expr.trim()))
+        .split(/\r?\n/);
       let inCodeBlock = false;
 
       paragraphs.forEach((pText: string) => {
@@ -754,9 +776,75 @@ export default function App() {
     }
   };
 
+  // --- MATH HELPERS ---
+
+  /** Convert a LaTeX expression string to a readable plain-text approximation for PDF/DOCX */
+  function latexToPlainText(expr: string): string {
+    return expr
+      .replace(/\\frac\{([^}]*)\}\{([^}]*)\}/g, "($1)/($2)")
+      .replace(/\\text\{([^}]*)\}/g, "$1")
+      .replace(/\\sqrt\{([^}]*)\}/g, "sqrt($1)")
+      .replace(/\\left|\\right/g, "")
+      .replace(/\\cdot/g, "×")
+      .replace(/\\times/g, "×")
+      .replace(/\\div/g, "÷")
+      .replace(/\\pm/g, "±")
+      .replace(/\\infty/g, "∞")
+      .replace(/\\approx/g, "≈")
+      .replace(/\\neq/g, "≠")
+      .replace(/\\leq/g, "≤")
+      .replace(/\\geq/g, "≥")
+      .replace(/\\sum/g, "Σ")
+      .replace(/\\alpha/g, "α")
+      .replace(/\\beta/g, "β")
+      .replace(/\\gamma/g, "γ")
+      .replace(/\\delta/g, "δ")
+      .replace(/\\mu/g, "μ")
+      .replace(/\\sigma/g, "σ")
+      .replace(/\\pi/g, "π")
+      .replace(/\\[a-zA-Z]+/g, "") // strip remaining commands
+      .replace(/[{}]/g, "")         // strip braces
+      .trim();
+  }
+
+  /** React component to render a KaTeX math expression */
+  function MathBlock({ latex, block }: { latex: string; block: boolean; key?: React.Key }) {
+    const ref = useRef<HTMLSpanElement>(null);
+    useEffect(() => {
+      if (ref.current) {
+        try {
+          katex.render(latex, ref.current, {
+            throwOnError: false,
+            displayMode: block,
+          });
+        } catch (e) {
+          if (ref.current) ref.current.textContent = latex;
+        }
+      }
+    }, [latex, block]);
+    return (
+      <span
+        ref={ref}
+        className={block ? "block my-3 overflow-x-auto text-center" : "inline mx-0.5"}
+      />
+    );
+  }
+
   // --- SUB COMPONENT: CUSTOM INLINE MARKDOWN PARSER ---
-  function CustomChatRenderer({ content }: { content: string }) {
-    const lines = content.split("\n");
+  function CustomChatRenderer({ content, fontSize: fs = "medium" }: { content: string; fontSize?: "small" | "medium" | "large" }) {
+    // Font size mapping for preview
+    const fontSizeClasses = {
+      small:  { p: "text-xs",  h1: "text-base", h2: "text-sm",  h3: "text-xs",  li: "text-xs"  },
+      medium: { p: "text-sm",  h1: "text-xl",   h2: "text-lg",  h3: "text-sm",  li: "text-sm"  },
+      large:  { p: "text-base",h1: "text-2xl",  h2: "text-xl",  h3: "text-base",li: "text-base" },
+    }[fs];
+
+    // Pre-process: collapse multi-line \\[...\\] block math into single sentinel lines
+    const normalized = content.replace(/\\\\\[([\\s\S]*?)\\\\\]/g, (_m, expr) => {
+      return `\x02MATHBLOCK:${expr.trim().replace(/\n/g, " ")}\x02`;
+    });
+
+    const lines = normalized.split("\n");
     let inCodeBlock = false;
     let codeLines: string[] = [];
     let codeLang = "code";
@@ -796,16 +884,16 @@ export default function App() {
 
       // Markdown Headers
       if (trimmed.startsWith("# ")) {
-        elements.push(<h1 key={index} className="text-xl font-bold text-zinc-900 mt-5 mb-2 hover:opacity-90 transition-opacity">{trimmed.substring(2)}</h1>);
+        elements.push(<h1 key={index} className={`${fontSizeClasses.h1} font-bold text-zinc-900 mt-5 mb-2 hover:opacity-90 transition-opacity`}>{trimmed.substring(2)}</h1>);
       } else if (trimmed.startsWith("## ")) {
-        elements.push(<h2 key={index} className="text-lg font-bold text-zinc-850 mt-4 mb-2">{trimmed.substring(3)}</h2>);
+        elements.push(<h2 key={index} className={`${fontSizeClasses.h2} font-bold text-zinc-850 mt-4 mb-2`}>{trimmed.substring(3)}</h2>);
       } else if (trimmed.startsWith("### ")) {
-        elements.push(<h3 key={index} className="text-sm font-semibold text-zinc-805 mt-3 mb-1.5">{trimmed.substring(4)}</h3>);
+        elements.push(<h3 key={index} className={`${fontSizeClasses.h3} font-semibold text-zinc-805 mt-3 mb-1.5`}>{trimmed.substring(4)}</h3>);
       }
       // HTML Bullet / Numbered lists
       else if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
         elements.push(
-          <ul key={index} className="list-disc pl-5 my-1 text-zinc-700 leading-relaxed text-sm">
+          <ul key={index} className={`list-disc pl-5 my-1 text-zinc-700 leading-relaxed ${fontSizeClasses.li}`}>
             <li className="pl-1 py-0.5">{parseInlineTags(trimmed.substring(2))}</li>
           </ul>
         );
@@ -814,33 +902,50 @@ export default function App() {
         const listNum = itemMatch ? itemMatch[1] : "1";
         const listText = itemMatch ? itemMatch[2] : trimmed;
         elements.push(
-          <ol key={index} className="list-decimal pl-5 my-1 text-zinc-700 leading-relaxed text-sm">
+          <ol key={index} className={`list-decimal pl-5 my-1 text-zinc-700 leading-relaxed ${fontSizeClasses.li}`}>
             <li value={parseInt(listNum)} className="pl-1 py-0.5">{parseInlineTags(listText)}</li>
           </ol>
+        );
+      }
+      // Block math — sentinel form \x02MATHBLOCK:expr\x02 (pre-processed multi-line) OR single-line \\[...\\]
+      else if (trimmed.startsWith("\x02MATHBLOCK:") && trimmed.endsWith("\x02")) {
+        const mathExpr = trimmed.slice(11, -1).trim();
+        elements.push(
+          <div key={index} className="my-3 px-2 py-1 overflow-x-auto">
+            <MathBlock latex={mathExpr} block={true} />
+          </div>
+        );
+      }
+      else if (trimmed.startsWith("\\[") && trimmed.endsWith("\\]")) {
+        const mathExpr = trimmed.slice(2, -2).trim();
+        elements.push(
+          <div key={index} className="my-3 px-2 py-1 overflow-x-auto">
+            <MathBlock latex={mathExpr} block={true} />
+          </div>
         );
       }
       // Line Break Breakdowns
       else if (trimmed === "") {
         elements.push(<div key={index} className="h-2.5" />);
       }
-      // Normal Sentence Paragraph
+      // Normal Sentence Paragraph (may contain inline math)
       else {
-        elements.push(<p key={index} className="text-sm text-zinc-700 leading-relaxed my-1.5">{parseInlineTags(line)}</p>);
+        elements.push(<p key={index} className={`${fontSizeClasses.p} text-zinc-700 leading-relaxed my-1.5`}>{parseInlineTagsWithMath(line)}</p>);
       }
     });
 
     return <div className="space-y-0.5">{elements}</div>;
   }
 
-  // Parses inline tags like **bold** text and `code snippets`
-  function parseInlineTags(rawText: string): React.ReactNode {
+  // Parses inline tags like **bold**, `code`, \(...\), and $...$ math
+  function parseInlineTagsWithMath(rawText: string): React.ReactNode {
     const segments: React.ReactNode[] = [];
     let head = 0;
-    
-    // Regexp finding markdown patterns
-    const boldCodeRegex = /(\*\*.*?\*\*|`.*?`)/g;
-    const matches = [...rawText.matchAll(boldCodeRegex)];
-    
+
+    // Match: **bold**, `code`, \(...\), $...$
+    const inlineRegex = /(\*\*.*?\*\*|`.*?`|\\\([\s\S]*?\\\)|\$[^$\n]+?\$)/g;
+    const matches = [...rawText.matchAll(inlineRegex)];
+
     if (matches.length === 0) {
       return rawText;
     }
@@ -849,7 +954,6 @@ export default function App() {
       const block = m[0];
       const start = m.index || 0;
 
-      // Add leading spacer text
       if (start > head) {
         segments.push(rawText.substring(head, start));
       }
@@ -866,6 +970,16 @@ export default function App() {
             {block.slice(1, -1)}
           </code>
         );
+      } else if (block.startsWith("\\(") && block.endsWith("\\)")) {
+        // Inline LaTeX \(...\)
+        segments.push(
+          <MathBlock key={`math-inline-${idx}`} latex={block.slice(2, -2).trim()} block={false} />
+        );
+      } else if (block.startsWith("$") && block.endsWith("$")) {
+        // Inline LaTeX $...$
+        segments.push(
+          <MathBlock key={`math-dollar-${idx}`} latex={block.slice(1, -1).trim()} block={false} />
+        );
       }
 
       head = start + block.length;
@@ -876,6 +990,11 @@ export default function App() {
     }
 
     return segments;
+  }
+
+  // Legacy inline parser (no math) — kept for any existing references
+  function parseInlineTags(rawText: string): React.ReactNode {
+    return parseInlineTagsWithMath(rawText);
   }
 
   const isDark = themeMode === "dark";
@@ -1179,6 +1298,34 @@ export default function App() {
                     />
                   </div>
 
+                  {/* Layout Section */}
+                  <div className="space-y-2">
+                    <label className="block text-[11px] font-bold uppercase tracking-widest text-zinc-400">
+                      Font Size
+                    </label>
+                    <div className={`flex rounded-xl p-1 ${isDark ? 'glass-inner-dark' : 'bg-zinc-100 border border-zinc-200'}`}>
+                      {(["small", "medium", "large"] as const).map((size) => (
+                        <button
+                          key={size}
+                          type="button"
+                          onClick={() => setFontSize(size)}
+                          className={`flex-1 py-2 text-[11px] font-bold rounded-lg capitalize transition-all duration-200 ${
+                            fontSize === size
+                              ? isDark
+                                ? 'bg-white/10 text-white shadow-sm border border-white/20'
+                                : 'bg-white text-zinc-950 shadow-sm border border-zinc-300'
+                              : isDark
+                                ? 'text-zinc-400 hover:text-white hover:bg-white/5'
+                                : 'text-zinc-400 hover:text-zinc-700'
+                          }`}
+                        >
+                          {size === "small" ? "S" : size === "medium" ? "M" : "L"}
+                          <span className="ml-1 hidden sm:inline">{size}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
                   {/* Statistical Badges list */}
                   <div className={`rounded-2xl p-4 space-y-2.5 ${isDark ? 'glass-inner-dark' : 'bg-zinc-50 border border-zinc-200'}`}>
                     <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 block pb-1 border-b border-zinc-200/50">Conversion Details</span>
@@ -1359,7 +1506,7 @@ export default function App() {
                                 </div>
                               ) : (
                                 <div className="transition-opacity">
-                                  <CustomChatRenderer content={msg.content} />
+                                  <CustomChatRenderer content={msg.content} fontSize={fontSize} />
                                 </div>
                               )}
                             </div>
