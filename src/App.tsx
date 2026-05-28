@@ -839,12 +839,55 @@ export default function App() {
       large:  { p: "text-base",h1: "text-2xl",  h2: "text-xl",  h3: "text-base",li: "text-base" },
     }[fs];
 
-    // Pre-process: collapse multi-line \\[...\\] block math into single sentinel lines
-    const normalized = content.replace(/\\\\\[([\\s\S]*?)\\\\\]/g, (_m, expr) => {
-      return `\x02MATHBLOCK:${expr.trim().replace(/\n/g, " ")}\x02`;
-    });
+    // Pre-process: statefully collapse multi-line \[...\] block math into single sentinel lines.
+    // Handles: \[ alone on a line, formula on next lines, \] alone on closing line.
+    const rawLines = content.split("\n");
+    const collapsedLines: string[] = [];
+    let inMathBlock = false;
+    let mathAccum: string[] = [];
 
-    const lines = normalized.split("\n");
+    for (const rawLine of rawLines) {
+      const t = rawLine.trim();
+      if (!inMathBlock) {
+        if (t === "\\[") {
+          // Standalone opening delimiter
+          inMathBlock = true;
+          mathAccum = [];
+        } else if (t.startsWith("\\[") && t.endsWith("\\]") && t.length > 4) {
+          // Entire block on one line: \[ expr \]
+          const expr = t.slice(2, -2).trim();
+          collapsedLines.push(`\x02MATHBLOCK:${expr}\x02`);
+        } else if (t.startsWith("\\[")) {
+          // Opening \[ with content on same line but no closing yet
+          inMathBlock = true;
+          mathAccum = [t.slice(2).trim()];
+        } else {
+          collapsedLines.push(rawLine);
+        }
+      } else {
+        // Inside a math block
+        if (t === "\\]") {
+          inMathBlock = false;
+          const expr = mathAccum.join(" ").trim();
+          collapsedLines.push(`\x02MATHBLOCK:${expr}\x02`);
+          mathAccum = [];
+        } else if (t.endsWith("\\]")) {
+          inMathBlock = false;
+          mathAccum.push(t.slice(0, -2).trim());
+          const expr = mathAccum.join(" ").trim();
+          collapsedLines.push(`\x02MATHBLOCK:${expr}\x02`);
+          mathAccum = [];
+        } else {
+          if (t.length > 0) mathAccum.push(t);
+        }
+      }
+    }
+    // If math block was never closed, flush content as raw text
+    if (inMathBlock && mathAccum.length > 0) {
+      collapsedLines.push("\\[", ...mathAccum, "\\]");
+    }
+
+    const lines = collapsedLines;
     let inCodeBlock = false;
     let codeLines: string[] = [];
     let codeLang = "code";
